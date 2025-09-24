@@ -3,22 +3,125 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Compare - BizPilot</title>
+	<title>Compare Ideas - BizPilot</title>
 	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { 
+			theme: { 
+				extend: { 
+					colors: { 
+						accent: '#D01B22', 
+						primary: '#EAB84E', 
+						primaryLight: '#F2D495', 
+						primaryLightest: '#FFFCEE', 
+						ink: '#171208' 
+					} 
+				} 
+			} 
+		};
+	</script>
 	<link rel="stylesheet" href="./styles.css">
-	<link rel="icon" href="./assets/logo.png">
+	<link rel="icon" href="./assets/logo.svg">
 </head>
-<body>
-	<script>try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }</script>
-	<div class="container py-6">
-		<h1 class="text-2xl font-extrabold mb-3">Compare</h1>
-		<div class="flex flex-wrap items-center gap-2 mb-2">
-			<select id="cmp-a" class="border border-[color:var(--muted)] rounded-md px-2 py-1 text-sm"></select>
-			<select id="cmp-b" class="border border-[color:var(--muted)] rounded-md px-2 py-1 text-sm"></select>
-			<button id="cmp-run" class="px-3 py-1 rounded-md bg-[color:var(--primary)] font-bold text-sm">Compare</button>
+<body class="bg-gray-50 min-h-screen">
+	<!-- Header -->
+	<header class="bg-white shadow-sm border-b border-gray-200">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex justify-between items-center h-16">
+				<div class="flex items-center">
+					<img src="./assets/logo.svg" alt="BizPilot" class="h-8 w-8 mr-3" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3Crect width=\'32\' height=\'32\' rx=\'8\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'12\'%3EBP%3C/text%3E%3C/svg%3E'">
+					<div>
+						<h1 class="text-xl font-bold text-gray-900">BizPilot</h1>
+						<p class="text-sm text-gray-500">AI Business Assistant</p>
+					</div>
+				</div>
+				<nav class="flex space-x-8">
+					<a href="./dashboard.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+					<a href="./models.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Models</a>
+					<a href="./compare.html" class="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium bg-blue-50 rounded-lg">Compare</a>
+					<a href="./tasks.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Tasks</a>
+					<a href="./simulations.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Simulations</a>
+				</nav>
+			</div>
 		</div>
-		<div id="cmp-result" class="text-sm text-[color:var(--ink-60)]"></div>
-	</div>
+	</header>
+
+	<!-- Main Content -->
+	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<!-- Page Header -->
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold text-gray-900 mb-2">Compare Business Ideas</h1>
+			<p class="text-gray-600">Compare two ideas and get AI-powered competitor analysis with strengths and weaknesses</p>
+		</div>
+
+		<!-- Idea Selection Card -->
+		<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+			<div class="flex items-center space-x-3 mb-6">
+				<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+					<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+					</svg>
+				</div>
+				<div>
+					<h2 class="text-xl font-semibold text-gray-900">Select Ideas to Compare</h2>
+					<p class="text-gray-600">Choose two different ideas for detailed comparison and competitor analysis</p>
+				</div>
+			</div>
+
+			<!-- Idea Selection Toggles -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+				<!-- Idea A Selection -->
+				<div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center space-x-2">
+							<div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
+							<h3 class="font-semibold text-blue-900">Idea A</h3>
+						</div>
+						<label class="relative inline-flex items-center cursor-pointer">
+							<input type="checkbox" id="toggle-a" class="sr-only peer">
+							<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+						</label>
+					</div>
+					<div id="selection-a" class="hidden">
+						<select id="idea-a" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+							<option value="">Select Idea A...</option>
+						</select>
+						<div id="idea-a-details" class="mt-2 text-sm text-gray-600"></div>
+					</div>
+				</div>
+
+				<!-- Idea B Selection -->
+				<div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center space-x-2">
+							<div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">B</div>
+							<h3 class="font-semibold text-purple-900">Idea B</h3>
+						</div>
+						<label class="relative inline-flex items-center cursor-pointer">
+							<input type="checkbox" id="toggle-b" class="sr-only peer">
+							<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+						</label>
+					</div>
+					<div id="selection-b" class="hidden">
+						<select id="idea-b" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+							<option value="">Select Idea B...</option>
+						</select>
+						<div id="idea-b-details" class="mt-2 text-sm text-gray-600"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Compare Button -->
+			<div class="flex justify-center">
+				<button id="compare-btn" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled>
+					<span id="compare-text">Compare Ideas</span>
+					<span id="compare-loading" class="hidden">Analyzing...</span>
+				</button>
+			</div>
+
+			<!-- Status Messages -->
+			<div id="status-messages" class="mt-4"></div>
+		</div>
 
 	<script>
 	(function(){
