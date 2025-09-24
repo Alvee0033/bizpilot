@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Automations - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="stylesheet" href="./styles.css">
+	<link rel="icon" href="./assets/logo.png">
+</head>
+<body>
+	<script>try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }</script>
+	<div class="container py-6">
+		<h1 class="text-2xl font-extrabold mb-3">Automations</h1>
+		<div class="border border-[color:var(--muted)] rounded-lg p-3">
+			<h4 class="font-bold mb-2 flex items-center gap-2">Operational Automations <span class="text-[10px] px-2 py-0.5 rounded-md bg-[color:var(--ink)] text-white">Premium</span></h4>
+			<p class="text-sm text-[color:var(--ink-60)]">Email templates, supplier workflows, API integrations, and scheduled alerts.</p>
+			<a href="./billing.html" class="inline-block mt-2 px-4 py-2 rounded-md bg-[color:var(--primary)] font-bold">Upgrade to Pro</a>
+		</div>
+	</div>
+</body>
+</html>
+
+

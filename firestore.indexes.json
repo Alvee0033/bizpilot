@@ -1,0 +1,44 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "ideas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "wizard",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "wizard",
+      "fieldPath": "extended",
+      "indexes": [
+        { "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "wizard",
+      "fieldPath": "title",
+      "indexes": [
+        { "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "wizard",
+      "fieldPath": "category",
+      "indexes": [
+        { "order": "ASCENDING" }
+      ]
+    }
+  ]
+}
+
+

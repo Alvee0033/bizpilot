@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Billing - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+	<script>
+		try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }
+	</script>
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav items-center">
+				<a href="./index.html#" class="nav-link">Home</a>
+				<a href="./wizard.html" class="nav-link">Try Wizard</a>
+				<a href="./dashboard.html" class="nav-link">Dashboard</a>
+				<a href="./settings.html" class="nav-link">Settings</a>
+				<a href="./help.html" class="nav-link">Help</a>
+				<div class="relative ml-2">
+					<button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
+						<img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
+					</button>
+				</div>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<section class="view active">
+			<div class="container">
+				<h2 class="text-2xl font-black mb-3">Choose Plan</h2>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<div class="border border-[color:var(--muted)] rounded-2xl p-4 bg-white">
+						<h3 class="font-extrabold text-lg">Free</h3>
+						<p class="text-sm text-[color:var(--ink-60)]">Basic 2 models/idea, limited chat.</p>
+						<button class="mt-3 px-4 py-2 rounded-md border border-[color:var(--muted)]" data-plan="free">Select</button>
+					</div>
+					<div class="border border-[color:var(--muted)] rounded-2xl p-4 bg-white">
+						<h3 class="font-extrabold text-lg">Pro</h3>
+						<p class="text-sm text-[color:var(--ink-60)]">Unlimited models, 24‑month forecasts.</p>
+						<div class="text-xl font-black mt-1">$9.99/mo</div>
+						<button class="mt-3 px-4 py-2 rounded-md bg-[color:var(--primary)]" data-plan="pro">Select</button>
+					</div>
+					<div class="border border-[color:var(--muted)] rounded-2xl p-4 bg-white">
+						<h3 class="font-extrabold text-lg">Enterprise</h3>
+						<p class="text-sm text-[color:var(--ink-60)]">Teams, API access, SLAs, analytics export.</p>
+						<div class="text-xl font-black mt-1">$49.99/mo</div>
+						<button class="mt-3 px-4 py-2 rounded-md bg-[color:var(--primary)]" data-plan="enterprise">Select</button>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="app-footer">
+		<div class="container footer-inner">
+			<span>© <span id="year"></span> BizPilot</span>
+			<a href="#/privacy">Privacy</a>
+			<a href="#/terms">Terms</a>
+		</div>
+	</footer>
+
+	<script type="module" src="./db.js"></script>
+	<script>
+	(function(){
+		const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+		const btns = document.querySelectorAll('[data-plan]');
+		btns.forEach(b => b.addEventListener('click', async () => {
+			const plan = b.getAttribute('data-plan');
+			try {
+				let st={}; try { st = JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); } catch {}
+				st.profile = st.profile || {}; st.profile.plan = plan; localStorage.setItem('bp_store_v1', JSON.stringify(st));
+				const user = JSON.parse(localStorage.getItem('bp_user')||'null');
+				if (user && user.uid && window.DB && DB.writeProfile) await DB.writeProfile(user.uid, { plan });
+				alert('Plan selected: ' + plan);
+			} catch {}
+		}));
+	})();
+	</script>
+</body>
+</html>
+
+

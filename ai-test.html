@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AI Response Test - BizPilot</title>
+	<style>
+		body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif; margin: 24px; color: #171208; }
+		label { display: block; font-weight: 700; margin-top: 12px; }
+		input, select, textarea { width: 100%; max-width: 640px; padding: 8px 10px; border: 1px solid #ddd1a7; border-radius: 8px; }
+		textarea { height: 100px; }
+		button { appearance: none; border: 0; background: #EAB84E; color: #171208; font-weight: 800; padding: 8px 14px; border-radius: 8px; cursor: pointer; margin-right: 8px; }
+		button.secondary { background: #fff; border: 1px solid #ddd1a7; }
+		pre { background: #FFFCEE; border: 1px solid #EAB84E; padding: 12px; border-radius: 8px; overflow: auto; max-width: 100%; }
+		.small { color: #6b6156; font-size: 12px; }
+	</style>
+</head>
+<body>
+	<h1>AI Response Test</h1>
+	<div class="small">This page lets you call the Gemini endpoint via your in-app integration and view the raw JSON the models tab uses.</div>
+
+	<label>Idea name</label>
+	<input id="ideaName" placeholder="Eco-friendly shoes in Dhaka" />
+
+	<label>Description</label>
+	<textarea id="description" placeholder="Short description of the idea..."></textarea>
+
+	<div style="display:flex; gap:12px; flex-wrap:wrap; max-width: 660px;">
+		<div style="flex:1; min-width:200px;">
+			<label>Category</label>
+			<input id="category" placeholder="Fashion" />
+		</div>
+		<div style="flex:1; min-width:200px;">
+			<label>Budget (USD)</label>
+			<input id="budget" type="number" value="10000" />
+		</div>
+		<div style="flex:1; min-width:200px;">
+			<label>Horizon</label>
+			<select id="horizon">
+				<option value="6m" selected>6m</option>
+				<option value="12m">12m</option>
+				<option value="24m">24m</option>
+			</select>
+		</div>
+		<div style="flex:1; min-width:200px;">
+			<label>Risk</label>
+			<select id="risk">
+				<option value="conservative" selected>conservative</option>
+				<option value="balanced">balanced</option>
+				<option value="aggressive">aggressive</option>
+			</select>
+		</div>
+	</div>
+
+	<label style="display:flex; align-items:center; gap:8px; margin-top:12px;">
+		<input id="disableKey" type="checkbox" /> Disable API key (force fallback)
+	</label>
+
+	<div style="margin-top:12px;">
+		<button id="run">Run Analysis</button>
+		<button id="loadGps" class="secondary">Attach GPS</button>
+	</div>
+
+	<h2 style="margin-top:20px;">Output</h2>
+	<pre id="out">(no output)</pre>
+
+	<script src="./services/aiService.js"></script>
+	<script>
+	(function(){
+		const run = document.getElementById('run');
+		const loadGpsBtn = document.getElementById('loadGps');
+		const out = document.getElementById('out');
+		const ideaName = document.getElementById('ideaName');
+		const description = document.getElementById('description');
+		const category = document.getElementById('category');
+		const budget = document.getElementById('budget');
+		const horizon = document.getElementById('horizon');
+		const risk = document.getElementById('risk');
+		const disableKey = document.getElementById('disableKey');
+
+		let gps = null;
+
+		loadGpsBtn.addEventListener('click', async () => {
+			out.textContent = 'Fetching GPS...';
+			try {
+				gps = await new Promise((resolve) => {
+					if (!navigator.geolocation) { resolve(null); return; }
+					navigator.geolocation.getCurrentPosition(
+						pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+						() => resolve(null),
+						{ enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+					);
+				});
+				out.textContent = 'GPS attached: ' + JSON.stringify(gps);
+			} catch { out.textContent = 'GPS not available'; }
+		});
+
+		run.addEventListener('click', async () => {
+			try {
+				if (disableKey.checked) {
+					try { window.GEMINI_API_KEY = ''; localStorage.removeItem('bp_gemini_key'); } catch {}
+				}
+				const wizard = {
+					description: description.value || '',
+					category: category.value || '',
+					budget: Number(budget.value)||0,
+					preferences: { horizon: horizon.value, risk: risk.value },
+					images: [],
+					pdf: null,
+					location: 'Test'
+				};
+				out.textContent = 'Calling AI...';
+				const res = await window.AIService.analyzeIdea({ ideaId: 'test', ideaName: ideaName.value || 'Idea', wizard, gps });
+				out.textContent = JSON.stringify(res.raw || { models: res.models, meta: res.meta }, null, 2);
+			} catch (e) {
+				out.textContent = 'Error: ' + (e && e.message ? e.message : String(e));
+			}
+		});
+	})();
+	</script>
+</body>
+</html>
+
+

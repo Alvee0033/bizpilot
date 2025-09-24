@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Sign Up - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav flex items-center gap-3">
+				<a href="./index.html#" class="nav-link">Home</a>
+				<a href="./index.html#/wizard" class="nav-link">Try Wizard</a>
+				<a href="./index.html#/dashboard" class="nav-btn">Dashboard</a>
+			</nav>
+		</div>
+	</header>
+
+	<main class="min-h-[calc(100vh-132px)] bg-gradient-to-b from-[color:var(--primaryLightest)] to-white">
+		<section class="view active">
+			<div class="container py-10">
+				<div class="mx-auto max-w-xl bg-white/90 backdrop-blur border border-[color:var(--muted)] rounded-2xl shadow-xl p-6">
+					<div class="text-center mb-4">
+						<div class="w-12 h-12 rounded-xl bg-[color:var(--accent)] text-white grid place-items-center mx-auto font-black">BP</div>
+						<h2 class="mt-2 text-2xl font-extrabold">Create your account</h2>
+						<p class="text-[color:var(--ink-60)] text-sm">Email, password, and optional voice sign-in</p>
+					</div>
+					<form id="signup-form" class="grid gap-3">
+						<label class="grid gap-1">
+							<span class="font-semibold">Display name</span>
+							<input type="text" id="su-name" placeholder="Your name" class="px-3 py-2 border border-[color:var(--muted)] rounded-md focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]">
+						</label>
+						<label class="grid gap-1">
+							<span class="font-semibold">Email</span>
+							<input type="email" id="su-email" placeholder="you@example.com" required class="px-3 py-2 border border-[color:var(--muted)] rounded-md focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]">
+						</label>
+						<label class="grid gap-1">
+							<span class="font-semibold">Password</span>
+							<input type="password" id="su-password" placeholder="********" required class="px-3 py-2 border border-[color:var(--muted)] rounded-md focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]">
+						</label>
+						<div class="mt-1 p-3 rounded-md border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]">
+							<div class="flex items-center justify-between">
+								<div>
+									<div class="font-bold">Enroll voice (optional)</div>
+									<div class="text-[color:var(--ink-60)] text-xs">Record ~3 seconds of your passphrase</div>
+								</div>
+								<button id="voice-record" type="button" class="px-3 py-1 rounded-md bg-[color:var(--primary)] font-bold">Start</button>
+							</div>
+							<div id="voice-visual" class="mt-2" style="display:none">
+								<canvas id="voice-canvas" width="700" height="72" class="w-full h-16 rounded-md border border-[color:var(--muted)] bg-white"></canvas>
+							</div>
+							<div id="voice-status" class="text-xs text-[color:var(--ink-60)] mt-2"></div>
+						</div>
+						<button type="submit" class="w-full py-2 rounded-md bg-[color:var(--ink)] text-white font-bold">Create account</button>
+					</form>
+					<p id="signup-error" class="mt-2 text-sm text-red-600" style="display:none"></p>
+					<p class="mt-2 text-sm text-[color:var(--ink-60)] text-center">Already have an account? <a href="./login.html" class="text-[color:var(--accent)] font-bold">Sign in</a></p>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="app-footer">
+		<div class="container footer-inner">
+			<span>© <span id="year"></span> BizPilot</span>
+			<a href="#/privacy">Privacy</a>
+			<a href="#/terms">Terms</a>
+		</div>
+	</footer>
+
+	<script type="module">
+		import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+		import { getAuth, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+		import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+
+		const firebaseConfig = {
+			apiKey: 'AIzaSyCpyk5H3coipz0HBJzuCXsBhwYPCcj2Asc',
+			authDomain: 'blzpilot.firebaseapp.com',
+			projectId: 'blzpilot',
+			storageBucket: 'blzpilot.firebasestorage.app',
+			messagingSenderId: '697661556177',
+			appId: '1:697661556177:web:17ab41202f66748e02ccf0',
+			measurementId: 'G-YBJGYKE3N5'
+		};
+
+		const app = initializeApp(firebaseConfig);
+		const auth = getAuth(app);
+		await setPersistence(auth, browserLocalPersistence);
+		const storage = getStorage(app);
+
+		const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+		let recordedBlob = null; const vrBtn = document.getElementById('voice-record'); const vrStatus = document.getElementById('voice-status'); const canvas = document.getElementById('voice-canvas'); const visualBox = document.getElementById('voice-visual'); const ctx = canvas?canvas.getContext('2d'):null; let rafId=0; let audioCtx=null; let analyser=null; let srcNode=null;
+		if (vrBtn && vrStatus) { let recording=false; let mr=null; let chunks=[]; function drawWave(){ if(!canvas||!ctx||!analyser) return; const len=analyser.frequencyBinCount; const arr=new Uint8Array(len); analyser.getByteTimeDomainData(arr); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.lineWidth=2; ctx.strokeStyle='#EAB84E'; ctx.beginPath(); const slice=canvas.width/len; let x=0; for(let i=0;i<len;i++){ const v=arr[i]/128.0; const y=v*canvas.height/2; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); x+=slice; } ctx.lineTo(canvas.width,canvas.height/2); ctx.stroke(); rafId=requestAnimationFrame(drawWave); } function stopVisual(){ if(rafId) cancelAnimationFrame(rafId); rafId=0; if(ctx&&canvas) ctx.clearRect(0,0,canvas.width,canvas.height); } vrBtn.addEventListener('click', async ()=>{ try{ if(!recording){ const stream=await navigator.mediaDevices.getUserMedia({audio:true}); mr=new MediaRecorder(stream,{mimeType:'audio/webm'}); chunks=[]; mr.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); }; mr.onstop=()=>{ recordedBlob=new Blob(chunks,{type:'audio/webm'}); vrStatus.textContent='Recorded voice sample.'; vrBtn.textContent='Re-record'; recording=false; stopVisual(); if(srcNode){try{srcNode.disconnect();}catch{}} if(audioCtx){try{audioCtx.close();}catch{}} srcNode=null; audioCtx=null; analyser=null; if(visualBox) visualBox.style.display='none'; }; if(visualBox) visualBox.style.display=''; audioCtx=new (window.AudioContext||window.webkitAudioContext)(); analyser=audioCtx.createAnalyser(); analyser.fftSize=2048; srcNode=audioCtx.createMediaStreamSource(stream); srcNode.connect(analyser); drawWave(); mr.start(); recording=true; vrStatus.textContent='Recording...'; vrBtn.textContent='Stop'; } else { mr&&mr.stop(); } } catch(e){ vrStatus.textContent='Microphone not available.'; } }); }
+
+		const form=document.getElementById('signup-form'); const errEl=document.getElementById('signup-error'); const nameEl=document.getElementById('su-name'); const emailEl=document.getElementById('su-email'); const passEl=document.getElementById('su-password'); if(form&&errEl&&emailEl&&passEl){ form.addEventListener('submit', async (e)=>{ e.preventDefault(); errEl.style.display='none'; const email=String(emailEl.value||'').trim(); const displayName=String((nameEl&&nameEl.value)||'').trim(); const password=String(passEl.value||''); try{ const cred=await createUserWithEmailAndPassword(auth,email,password); const user=cred.user; if(displayName){ try{ await updateProfile(user,{ displayName }); }catch{} } let voiceUrl=''; if(recordedBlob){ const path=`users/${user.uid}/voice.webm`; const storageRef=ref(storage,path); await uploadBytes(storageRef, recordedBlob, { contentType:'audio/webm' }); voiceUrl=await getDownloadURL(storageRef); } try{ localStorage.setItem('bp_user', JSON.stringify({ uid:user.uid, displayName: user.displayName||displayName||'', email:user.email, photoURL:user.photoURL||'', voiceUrl })); if(!localStorage.getItem('bp_language')) localStorage.setItem('bp_language','en'); }catch{} window.location.href='./index.html#/wizard'; } catch(err){ errEl.textContent='Sign up failed. Please try again.'; errEl.style.display=''; } }); }
+	</script>
+	<script src="./login.js"></script>
+</body>
+</html>
+
+

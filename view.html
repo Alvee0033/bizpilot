@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Idea Details - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav items-center">
+				<a href="./index.html#" class="nav-link">Home</a>
+				<a href="./index.html#/dashboard" class="nav-btn">Dashboard</a>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<section class="view active">
+			<div class="container">
+				<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm">
+					<h2 id="v-title" class="text-2xl font-black">Idea</h2>
+					<p id="v-desc" class="mt-1 text-[color:var(--ink-60)]"></p>
+					<div class="grid md:grid-cols-2 gap-4 mt-4">
+						<div class="bg-[color:var(--primaryLightest)] rounded-xl p-4 border border-[color:var(--primary)]">
+							<div class="font-extrabold mb-2">Overview</div>
+							<div id="v-overview" class="text-sm"></div>
+						</div>
+						<div class="bg-white rounded-xl p-4 border border-[color:var(--muted)]">
+							<div class="font-extrabold mb-2">Persona</div>
+							<div id="v-persona" class="text-sm"></div>
+						</div>
+					</div>
+					<div class="grid md:grid-cols-2 gap-4 mt-4">
+						<div class="bg-white rounded-xl p-4 border border-[color:var(--muted)]">
+							<div class="font-extrabold mb-2">Value & Pricing</div>
+							<div id="v-value" class="text-sm"></div>
+						</div>
+						<div class="bg-white rounded-xl p-4 border border-[color:var(--muted)]">
+							<div class="font-extrabold mb-2">Uploads</div>
+							<div id="v-uploads" class="text-sm"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="app-footer">
+		<div class="container footer-inner">
+			<span>© <span id="year"></span> BizPilot</span>
+			<a href="#/privacy">Privacy</a>
+			<a href="#/terms">Terms</a>
+		</div>
+	</footer>
+
+	<script>
+	(function(){
+		const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+		// read from local store
+		let st = {};
+		try { st = JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); } catch {}
+		const w = (st.wizard) || {};
+		document.getElementById('v-title').textContent = (w.title || w.description || 'Idea');
+		document.getElementById('v-desc').textContent = w.description || '';
+		document.getElementById('v-overview').innerHTML = `
+			<div><strong>Location:</strong> ${w.location||''}</div>
+			<div><strong>Budget:</strong> $${Number(w.budget||0).toLocaleString()}</div>
+			<div><strong>Category:</strong> ${w.category||''}</div>
+			<div><strong>Horizon:</strong> ${(w.preferences&&w.preferences.horizon)||''}</div>
+			<div><strong>Risk:</strong> ${(w.preferences&&w.preferences.risk)||''}</div>
+		`;
+		const persona = (w.extended&&w.extended.persona)||{};
+		document.getElementById('v-persona').innerHTML = `
+			<div><strong>Age:</strong> ${persona.age||''}</div>
+			<div><strong>Gender:</strong> ${persona.gender||''}</div>
+			<div><strong>Job:</strong> ${persona.job||''}</div>
+			<div class="mt-2"><strong>Pains:</strong> ${(w.extended&&w.extended.pains)||''}</div>
+		`;
+		const pricing = (w.extended&&w.extended.pricing)||{};
+		document.getElementById('v-value').innerHTML = `
+			<div><strong>Value Prop:</strong> ${(w.extended&&w.extended.valueProp)||''}</div>
+			<div><strong>Pricing:</strong> ${pricing.model||''} ${pricing.price?('— '+pricing.price):''}</div>
+		`;
+		const uploads = [];
+		if (w.images && w.images.length) uploads.push(`${w.images.length} image(s)`);
+		if (w.pdf) uploads.push('PDF attached');
+		document.getElementById('v-uploads').textContent = uploads.join(', ') || 'No uploads';
+	})();
+	</script>
+
+</body>
+</html>
+
+

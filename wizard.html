@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Idea Wizard - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css">
+	<link rel="icon" href="./assets/logo.png">
+	<style>
+		/* Pretty range slider */
+		.styled-range input[type=range] { -webkit-appearance: none; appearance: none; height: 6px; width: 100%; border-radius: 9999px; background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 50%, #ece7dd 50%); outline: none; transition: background .1s ease; }
+		.styled-range input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 9999px; background: var(--ink); border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.2); cursor: pointer; }
+		.styled-range input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 9999px; background: var(--ink); border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.2); cursor: pointer; }
+		.styled-range input[type=range]::-moz-range-track { height: 6px; border-radius: 9999px; background: #ece7dd; }
+	</style>
+</head>
+<body>
+	<script>
+		// Auth guard: redirect if not logged in
+		try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }
+	</script>
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav items-center">
+				<a href="./index.html#" class="nav-link">Home</a>
+				<a href="./dashboard.html" class="nav-link">Dashboard</a>
+				<a href="./settings.html" class="nav-link">Settings</a>
+				<a href="./billing.html" class="nav-link">Billing</a>
+				<a href="./help.html" class="nav-link">Help</a>
+				<div class="relative ml-2">
+					<button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
+						<img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
+					</button>
+				</div>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<section class="view active">
+			<div class="container wizard">
+				<div class="wizard-card">
+					<div class="wizard-header">
+						<h2>Describe Your Idea</h2>
+						<div class="steps">
+							<span class="step active" data-step="1">1</span>
+							<span class="step" data-step="2">2</span>
+							<span class="step" data-step="3">3</span>
+						</div>
+					</div>
+					<div class="wizard-body">
+						<!-- Step 1 -->
+                        <div class="wizard-step" data-step="1">
+                        <div class="field">
+                                <label>Title</label>
+                                <input id="idea-title" type="text" placeholder="Eco Shoes Dhaka">
+                            </div>
+                        <div class="field">
+								<label>Describe your business idea</label>
+								<div class="relative">
+									<textarea id="idea-desc" rows="10" placeholder="Eco-friendly shoes in Dhaka serving young professionals..." class="w-full pr-14 pl-3 pt-3 pb-12 border border-[color:var(--muted)] rounded-2xl" style="min-height:220px;"></textarea>
+                                    <button id="dictate-btn" type="button" class="absolute right-3 top-3 w-10 h-10 rounded-full bg-[color:var(--primary)] grid place-items-center shadow" title="Dictate" style="z-index:10">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none">
+											<path d="M12 14a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v3a4 4 0 0 0 4 4Z" />
+											<path d="M19 10a7 7 0 0 1-14 0" />
+											<path d="M12 19v3" />
+											<path d="M8 22h8" />
+										</svg>
+									</button>
+								</div>
+								<canvas id="dictate-canvas" width="900" height="48" class="w-full h-12 rounded-xl border border-[color:var(--muted)] bg-white mt-2" style="display:none"></canvas>
+							</div>
+							<div class="row">
+                                <div class="field">
+                                    <label>Location</label>
+                                    <div class="relative">
+                                        <input id="idea-location" type="text" value="Dhaka, Bangladesh" class="w-full pr-14">
+                                        <button id="open-map" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-[color:var(--primaryLightest)] border border-[color:var(--muted)] grid place-items-center shadow-sm" title="Pick on map" aria-label="Pick on map" style="z-index:10">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none">
+                                                <path d="M12 22s7-5.33 7-12a7 7 0 0 0-14 0c0 6.67 7 12 7 12Z"/>
+                                                <circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="field styled-range">
+                                    <label class="flex items-center justify-between">
+                                        <span>Budget</span>
+                                        <span id="budget-value" class="font-extrabold">$10,000</span>
+                                    </label>
+                                    <input id="budget" type="range" min="500" max="50000" step="500" value="10000">
+                                    <div class="flex justify-between text-[12px] text-[color:var(--ink-60)] mt-1">
+                                        <span>$500</span>
+                                        <span>$50k</span>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Category</label>
+                                    <div class="relative">
+                                        <select id="category" class="w-full appearance-none rounded-2xl border border-[color:var(--muted)] bg-white px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)] shadow-sm">
+                                            <option>Fashion</option>
+                                            <option>Food</option>
+                                            <option>Tech</option>
+                                            <option>Services</option>
+                                        </select>
+                                        <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--ink-60)]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M6 9l6 6 6-6" />
+                                        </svg>
+                                    </div>
+                                </div>
+							</div>
+						</div>
+
+						<!-- Step 2 -->
+                        <div class="wizard-step" data-step="2" hidden>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="col-span-1 bg-white border border-[color:var(--muted)] rounded-2xl p-4 shadow-sm">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-xl bg-[color:var(--primaryLightest)] grid place-items-center">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M4 4h16v16H4z"/>
+                                                <path d="M4 16l5-5 4 4 3-3 4 4"/>
+                                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            </svg>
+                                        </div>
+                                        <label class="font-extrabold">Upload images</label>
+                                    </div>
+                                    <label class="mt-3 block cursor-pointer">
+                                        <div class="w-full rounded-2xl border border-dashed border-[color:var(--muted)] px-4 py-6 text-center hover:border-[color:var(--primary)]">
+                                            <div class="text-sm text-[color:var(--ink-60)]">Drag & drop or click to select</div>
+                                            <div class="text-xs text-[color:var(--ink-60)]">PNG, JPG up to 10MB</div>
+                                        </div>
+                                        <input id="image-upload" type="file" accept="image/*" multiple class="hidden">
+                                    </label>
+                                    <div id="image-preview" class="previews mt-3"></div>
+                                </div>
+                                <div class="col-span-1 bg-white border border-[color:var(--muted)] rounded-2xl p-4 shadow-sm">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-xl bg-[color:var(--primaryLightest)] grid place-items-center">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                                                <path d="M14 2v6h6"/>
+                                            </svg>
+                                        </div>
+                                        <label class="font-extrabold">Upload PDF</label>
+                                    </div>
+                                    <label class="mt-3 block cursor-pointer">
+                                        <div class="w-full rounded-2xl border border-dashed border-[color:var(--muted)] px-4 py-6 text-center hover:border-[color:var(--primary)]">
+                                            <div class="text-sm text-[color:var(--ink-60)]">Drag & drop or click to select</div>
+                                            <div class="text-xs text-[color:var(--ink-60)]">PDF up to 10MB</div>
+                                        </div>
+                                        <input id="pdf-upload" type="file" accept="application/pdf" class="hidden">
+                                    </label>
+                                    <div id="pdf-preview" class="previews mt-3"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Target persona</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <input id="persona-age" type="text" placeholder="Age">
+                                        <select id="persona-gender" class="rounded-2xl border border-[color:var(--muted)] px-3 py-2">
+                                            <option value="female">Female</option>
+                                            <option value="male">Male</option>
+                                            <option value="nonbinary">Non-binary</option>
+                                            <option value="other">Other</option>
+                                            <option value="prefer_not">Prefer not to say</option>
+                                        </select>
+                                        <input id="persona-job" type="text" placeholder="Job title">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Top pains (comma separated)</label>
+                                    <input id="pains" type="text" placeholder="Long delivery times, high price, ...">
+                                </div>
+                                <div class="field">
+                                    <label>Value proposition</label>
+                                    <input id="value-prop" type="text" placeholder="We help X achieve Y by Z">
+                                </div>
+                                <div class="field">
+                                    <label>Pricing</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <select id="pricing-model" class="rounded-2xl border border-[color:var(--muted)] px-3 py-2">
+                                            <option value="one_time">One-time</option>
+                                            <option value="subscription">Subscription</option>
+                                            <option value="tiered">Tiered</option>
+                                        </select>
+                                        <input id="pricing-price" type="text" placeholder="$ Price" class="rounded-2xl border border-[color:var(--muted)] px-3 py-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+						<!-- Step 3 -->
+                        <div class="wizard-step" data-step="3" hidden>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                                <div class="bg-white border border-[color:var(--muted)] rounded-2xl p-4 shadow-sm">
+                                    <label class="font-extrabold">Time horizon</label>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[color:var(--muted)] bg-[color:var(--primaryLightest)] cursor-pointer text-sm whitespace-nowrap"><input class="align-middle" type="radio" name="horizon" value="6m" checked> <span>6 months</span></label>
+                                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[color:var(--muted)] bg-[color:var(--primaryLightest)] cursor-pointer text-sm whitespace-nowrap"><input class="align-middle" type="radio" name="horizon" value="1y"> <span>1 year</span></label>
+                                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[color:var(--muted)] bg-[color:var(--primaryLightest)] cursor-pointer text-sm whitespace-nowrap"><input class="align-middle" type="radio" name="horizon" value="2y"> <span>2 years</span></label>
+                                    </div>
+                                </div>
+                                <div class="bg-white border border-[color:var(--muted)] rounded-2xl p-4 shadow-sm">
+                                    <label class="font-extrabold">Risk tolerance</label>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[color:var(--muted)] bg-[color:var(--primaryLightest)] cursor-pointer text-sm whitespace-nowrap"><input class="align-middle" type="radio" name="risk" value="conservative" checked> <span>Conservative</span></label>
+                                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[color:var(--muted)] bg-[color:var(--primaryLightest)] cursor-pointer text-sm whitespace-nowrap"><input class="align-middle" type="radio" name="risk" value="moderate"> <span>Moderate</span></label>
+                                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[color:var(--muted)] bg-[color:var(--primaryLightest)] cursor-pointer text-sm whitespace-nowrap"><input class="align-middle" type="radio" name="risk" value="aggressive"> <span>Aggressive</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="summary mt-4 bg-[color:var(--primaryLightest)] border border-[color:var(--primary)] rounded-2xl p-4" id="wizard-summary"></div>
+                        </div>
+
+						<div class="wizard-footer">
+							<button id="prev-step" class="btn btn-secondary" disabled>Back</button>
+							<button id="next-step" class="btn btn-primary">Next</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Map Picker Modal -->
+	<div id="map-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-40">
+		<div class="bg-white w-[95vw] max-w-3xl rounded-2xl border border-[color:var(--muted)] shadow-2xl overflow-hidden">
+			<div class="p-3 border-b border-[color:var(--muted)] flex items-center gap-2">
+				<input id="map-search" type="text" placeholder="Search location" class="flex-1 px-3 py-2 rounded-md border border-[color:var(--muted)]">
+				<button id="map-close" class="px-3 py-2 rounded-md border border-[color:var(--muted)]">Close</button>
+			</div>
+			<div id="map-container" class="w-full h-[420px]"></div>
+			<div class="p-3 border-t border-[color:var(--muted)] flex items-center justify-between">
+				<div id="map-coords" class="text-xs text-[color:var(--ink-60)]">Click on map to drop a pin</div>
+				<button id="map-apply" class="px-4 py-2 rounded-md bg-[color:var(--accent)] text-white font-bold">Use this location</button>
+			</div>
+		</div>
+	</div>
+
+	<footer class="app-footer">
+		<div class="container footer-inner">
+			<span>© <span id="year"></span> BizPilot</span>
+			<a href="#/privacy">Privacy</a>
+			<a href="#/terms">Terms</a>
+		</div>
+	</footer>
+
+	<script type="module" src="./db.js"></script>
+	<script src="./app.js"></script>
+	<script>
+		// Ensure wizard buttons/dictation initialize after DOM ready in this page context
+		window.addEventListener('load', () => {
+			// Rebind header profile to index profile view to avoid missing section here
+			const hp = document.getElementById('header-profile-btn');
+			if (hp) hp.addEventListener('click', (e) => { e.preventDefault(); window.location.href = './index.html#/profile'; });
+		});
+	</script>
+	<!-- Replacing Google Maps with free Leaflet + OpenStreetMap (no card needed) -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+	<script>
+(function(){
+    const modal = document.getElementById('map-modal');
+    const openBtn = document.getElementById('open-map');
+    const closeBtn = document.getElementById('map-close');
+    const applyBtn = document.getElementById('map-apply');
+    const searchEl = document.getElementById('map-search');
+    const mapBox = document.getElementById('map-container');
+    const coordsEl = document.getElementById('map-coords');
+    const locInput = document.getElementById('idea-location');
+    let map, marker;
+    function show(){ if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }}
+    function hide(){ if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }}
+    function initMap(){
+        if (!mapBox) return;
+        const center = [23.8103, 90.4125];
+        map = L.map(mapBox).setView(center, 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        marker = L.marker(center, { draggable: true }).addTo(map);
+        map.on('click', (e) => { setMarker([e.latlng.lat, e.latlng.lng]); });
+        marker.on('dragend', () => updateCoords(marker.getLatLng()));
+        if (searchEl && window.L && L.Control && L.Control.Geocoder) {
+            const geocoder = L.Control.geocoder({ defaultMarkGeocode: false })
+                .on('markgeocode', function(e){
+                    const c = e.geocode.center; map.setView(c, 14); setMarker([c.lat, c.lng]); if (locInput) locInput.value = e.geocode.name || locInput.value;
+                })
+                .addTo(map);
+        }
+        updateCoords({ lat: center[0], lng: center[1] });
+    }
+    function setMarker(latlngArr){ if (!marker) return; marker.setLatLng(latlngArr); updateCoords({ lat: latlngArr[0], lng: latlngArr[1] }); }
+    function updateCoords(ll){ if (!coordsEl || !ll) return; coordsEl.textContent = `Lat: ${Number(ll.lat).toFixed(5)}, Lng: ${Number(ll.lng).toFixed(5)}`; }
+    if (openBtn) openBtn.addEventListener('click', () => { show(); setTimeout(initMap, 50); });
+    if (closeBtn) closeBtn.addEventListener('click', hide);
+    async function reverseGeocode(lat, lng){
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=14&addressdetails=0&accept-language=en`;
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 5000);
+        try {
+            const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
+            clearTimeout(to);
+            if (!res.ok) return '';
+            const data = await res.json();
+            return data && (data.display_name || data.name) || '';
+        } catch { clearTimeout(to); return ''; }
+    }
+
+    if (applyBtn) applyBtn.addEventListener('click', async () => {
+        if (!map || !marker || !locInput) { hide(); return; }
+        const fallback = async () => {
+            const pos = marker.getLatLng();
+            try { map.flyTo([pos.lat, pos.lng], 15, { animate: true, duration: 0.8 }); } catch {}
+            const placeName = await reverseGeocode(pos.lat, pos.lng);
+            const base = placeName || (locInput.value || '');
+            const val = `${base} (Lat ${pos.lat.toFixed(5)}, Lng ${pos.lng.toFixed(5)})`;
+            locInput.value = val.trim();
+            setTimeout(hide, 900);
+        };
+        const originalText = applyBtn.textContent;
+        applyBtn.disabled = true; applyBtn.textContent = 'Locating...';
+        try {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(async (p) => {
+                    const lat = p.coords.latitude, lng = p.coords.longitude;
+                    try { map.flyTo([lat, lng], 16, { animate: true, duration: 0.9 }); } catch {}
+                    setMarker([lat, lng]);
+                    const placeName = await reverseGeocode(lat, lng);
+                    const base = placeName || (locInput.value || '');
+                    const val = `${base} (Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)})`;
+                    locInput.value = val.trim();
+                    setTimeout(() => { hide(); applyBtn.disabled = false; applyBtn.textContent = originalText; }, 1000);
+                }, async () => { await fallback(); applyBtn.disabled = false; applyBtn.textContent = originalText; }, { enableHighAccuracy: true, timeout: 5000 });
+            } else {
+                await fallback();
+                applyBtn.disabled = false; applyBtn.textContent = originalText;
+            }
+        } catch {
+            await fallback();
+            applyBtn.disabled = false; applyBtn.textContent = originalText;
+        }
+    });
+})();
+	</script>
+</body>
+</html>
+
+

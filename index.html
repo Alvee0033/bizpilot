@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BizPilot - AI Business Assistant</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							accent: '#D01B22',
+							primary: '#EAB84E',
+							primaryLight: '#F2D495',
+							primaryLightest: '#FFFCEE',
+							ink: '#171208'
+						}
+					}
+				}
+			}
+		</script>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css">
+		<link rel="icon" href="./assets/logo.png">
+</head>
+<body>
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav items-center">
+				<a href="#/" class="nav-link">Home</a>
+				<a href="./wizard.html" class="nav-link">Try Wizard</a>
+				<a href="./dashboard.html" class="nav-link">Dashboard</a>
+				<a href="./settings.html" class="nav-link">Settings</a>
+				<a href="./billing.html" class="nav-link">Billing</a>
+				<a href="./help.html" class="nav-link">Help</a>
+				<!-- Header Profile Avatar -->
+				<div class="relative ml-2">
+					<button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
+						<img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
+					</button>
+				</div>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<!-- Landing Page -->
+		<section id="view-landing" class="view active">
+			<!-- HERO -->
+			<div class="relative overflow-hidden">
+				<div class="blob b1"></div>
+				<div class="blob b2"></div>
+				<div class="blob b3"></div>
+				<div class="absolute inset-0 bg-gradient-to-br from-[color:var(--primaryLightest)] via-white to-[color:var(--primary-light)]"></div>
+				<div class="container relative py-14">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+						<div class="reveal">
+							<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[color:var(--primaryLightest)] border border-[color:var(--muted)] mb-3">
+								<span>✨ New</span>
+								<span class="text-[color:var(--ink-60)]">AI Wizard v2</span>
+							</div>
+						<h1 class="text-4xl md:text-5xl font-black leading-tight tracking-tight">BizPilot — your AI copilot to plan, test, and launch</h1>
+						<p class="mt-3 text-[color:var(--ink-60)] text-lg">Go from idea to roadmap with models, simulations, and clear next steps tailored to your market.</p>
+							<div class="mt-6 flex flex-wrap items-center gap-3">
+								<a id="cta-start" href="./login.html" class="px-5 py-3 rounded-xl bg-[color:var(--accent)] text-white font-extrabold btn-animated">Get started free</a>
+								<a href="./wizard.html" class="px-5 py-3 rounded-xl bg-[color:var(--ink)] text-white font-extrabold btn-animated">Try the Wizard</a>
+							<span class="text-xs text-[color:var(--ink-60)]">No credit card required</span>
+							</div>
+
+							<!-- Stats -->
+							<div class="mt-6 grid grid-cols-3 gap-4 text-center">
+								<div class="bg-white border border-[color:var(--muted)] rounded-xl p-3">
+									<div class="text-2xl font-black">10k+</div>
+									<div class="text-[color:var(--ink-60)] text-xs">ideas explored</div>
+								</div>
+								<div class="bg-white border border-[color:var(--muted)] rounded-xl p-3">
+									<div class="text-2xl font-black">4.9★</div>
+									<div class="text-[color:var(--ink-60)] text-xs">user rating</div>
+								</div>
+								<div class="bg-white border border-[color:var(--muted)] rounded-xl p-3">
+									<div class="text-2xl font-black">48h</div>
+									<div class="text-[color:var(--ink-60)] text-xs">to first roadmap</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="reveal">
+							<div class="bg-white/80 backdrop-blur border border-[color:var(--muted)] rounded-2xl shadow-xl p-5 card-hover">
+								<div class="flex items-center justify-between mb-2">
+									<div class="text-sm font-bold">Quick preview</div>
+									<span class="text-[color:var(--ink-60)] text-xs">Try a sample idea</span>
+								</div>
+								<div class="flex gap-2">
+									<input id="demo-input" type="text" placeholder="eco-friendly shoes in Dhaka" class="flex-1 px-4 py-3 rounded-xl border border-[color:var(--muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]">
+									<button id="demo-run" class="px-5 py-3 rounded-xl bg-[color:var(--primary)] font-black">Preview</button>
+								</div>
+								<div id="demo-output" class="mt-3 text-sm text-[color:var(--ink-60)] min-h-[38px]"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- TRUST STRIP -->
+			<div class="container py-10">
+				<div class="grid grid-cols-2 md:grid-cols-5 gap-4 items-center reveal">
+					<div class="text-center text-xs md:text-sm font-bold text-[color:var(--ink-60)] uppercase tracking-wide">Trusted by founders</div>
+					<div class="h-10 bg-white border border-[color:var(--muted)] rounded-lg grid place-items-center text-xs text-[color:var(--ink-60)]">Startup BD</div>
+					<div class="h-10 bg-white border border-[color:var(--muted)] rounded-lg grid place-items-center text-xs text-[color:var(--ink-60)]">Dhaka Hub</div>
+					<div class="h-10 bg-white border border-[color:var(--muted)] rounded-lg grid place-items-center text-xs text-[color:var(--ink-60)]">MakerSpace</div>
+					<div class="h-10 bg-white border border-[color:var(--muted)] rounded-lg grid place-items-center text-xs text-[color:var(--ink-60)]">GrowthX</div>
+				</div>
+			</div>
+
+			<!-- FEATURES -->
+			<div class="container">
+				<div class="grid md:grid-cols-3 gap-4 reveal">
+					<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm">
+						<div class="w-10 h-10 rounded-xl bg-[color:var(--primaryLightest)] grid place-items-center">
+							<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" style="color: var(--ink);" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<rect x="3" y="10" width="4" height="10" rx="1"></rect>
+								<rect x="10" y="6" width="4" height="14" rx="1"></rect>
+								<rect x="17" y="3" width="4" height="17" rx="1"></rect>
+							</svg>
+						</div>
+						<h3 class="font-extrabold mt-3 text-lg">Generate Models</h3>
+						<p class="text-[color:var(--ink-60)] text-sm">Create lean canvases, personas, and revenue models in seconds.</p>
+					</div>
+					<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm">
+						<div class="w-10 h-10 rounded-xl bg-[color:var(--primaryLightest)] grid place-items-center">
+							<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" style="color: var(--ink);" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="M6 3h12"></path>
+								<path d="M6 3v5l6 9l6 -9V3"></path>
+								<path d="M9 21h6"></path>
+							</svg>
+						</div>
+						<h3 class="font-extrabold mt-3 text-lg">Run Simulations</h3>
+						<p class="text-[color:var(--ink-60)] text-sm">Test pricing, demand, and marketing scenarios with confidence.</p>
+					</div>
+					<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm">
+						<div class="w-10 h-10 rounded-xl bg-[color:var(--primaryLightest)] grid place-items-center">
+							<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" style="color: var(--ink);" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="M4 7l6 -2l4 2l6 -2v14l-6 2l-4 -2l-6 2V7z"></path>
+								<path d="M10 5v14"></path>
+								<path d="M14 7v14"></path>
+							</svg>
+						</div>
+						<h3 class="font-extrabold mt-3 text-lg">Get Roadmap</h3>
+						<p class="text-[color:var(--ink-60)] text-sm">Receive a step-by-step plan tailored to your market and budget.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- TESTIMONIALS -->
+			<div class="container py-12">
+				<div class="grid md:grid-cols-3 gap-4 reveal">
+					<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm card-hover">
+						<div class="text-3xl leading-none">“</div>
+						<p class="text-sm mt-1">BizPilot cut our planning time by 80%. The simulations were spot on.</p>
+					<div class="mt-4 flex items-center gap-2 text-sm font-bold">
+						<img src="https://i.pravatar.cc/64?u=ayesha" alt="Ayesha" class="w-7 h-7 rounded-full border border-[color:var(--muted)]">
+						<span>Ayesha, Eco Shoes</span>
+						</div>
+					</div>
+					<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm card-hover">
+						<div class="text-3xl leading-none">“</div>
+						<p class="text-sm mt-1">We found a profitable pricing strategy within a week. Amazing.</p>
+					<div class="mt-4 flex items-center gap-2 text-sm font-bold">
+						<img src="https://i.pravatar.cc/64?u=rahim" alt="Rahim" class="w-7 h-7 rounded-full border border-[color:var(--muted)]">
+						<span>Rahim, Cloud Kitchen</span>
+						</div>
+					</div>
+					<div class="bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm card-hover">
+						<div class="text-3xl leading-none">“</div>
+						<p class="text-sm mt-1">Roadmaps are crisp and actionable. Great for early teams.</p>
+					<div class="mt-4 flex items-center gap-2 text-sm font-bold">
+						<img src="https://i.pravatar.cc/64?u=nadia" alt="Nadia" class="w-7 h-7 rounded-full border border-[color:var(--muted)]">
+						<span>Nadia, Dev Agency</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- BOTTOM CTA -->
+			<div class="container py-8">
+				<div class="bg-[color:var(--ink)] text-white rounded-2xl p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-md">
+					<div>
+						<div class="text-2xl md:text-3xl font-black leading-tight">Ready to turn your idea into a plan?</div>
+						<div class="text-white/80 text-sm mt-1">Start free and build momentum today.</div>
+					</div>
+					<div class="flex gap-3">
+						<a href="./login.html" class="px-5 py-3 rounded-xl bg-[color:var(--primary)] text-black font-extrabold">Get started</a>
+						<a href="./wizard.html" class="px-5 py-3 rounded-xl bg-white text-black font-extrabold">Try Wizard</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Profile (separate view) -->
+		<section id="view-profile" class="view">
+			<div class="container">
+				<div class="max-w-2xl mx-auto bg-white border border-[color:var(--muted)] rounded-2xl p-6 shadow-sm">
+					<div class="flex items-center gap-4">
+						<img id="p-avatar" class="w-16 h-16 rounded-full border border-[color:var(--muted)]" alt="Avatar" src="">
+						<div class="min-w-0">
+							<div id="p-name" class="text-xl font-extrabold truncate">Guest</div>
+							<div id="p-email" class="text-[color:var(--ink-60)] truncate"></div>
+						</div>
+					</div>
+					<div class="grid gap-3 mt-5">
+						<label class="grid gap-1">
+							<span class="font-semibold">Language</span>
+							<select id="p-language" class="w-full border border-[color:var(--muted)] rounded-lg py-2 pl-3 pr-3 text-sm">
+								<option value="en">English</option>
+								<option value="bn">Bengali</option>
+							</select>
+						</label>
+						<label class="grid gap-1">
+							<span class="font-semibold">Stage</span>
+							<select id="p-stage" class="w-full border border-[color:var(--muted)] rounded-lg py-2 pl-3 pr-3 text-sm">
+								<option value="Idea">Idea</option>
+								<option value="MVP">MVP</option>
+								<option value="Growth">Growth</option>
+							</select>
+						</label>
+						<div class="flex gap-2">
+							<a href="#/dashboard" class="px-3 py-2 rounded-md border border-[color:var(--muted)]">Back</a>
+							<button id="p-logout" class="px-3 py-2 rounded-md border border-[color:var(--muted)]">Log out</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+
+
+		<!-- Idea Wizard moved to wizard.html -->
+		<section id="view-wizard" class="view" style="display:none">
+			<div class="container wizard">
+				<div class="wizard-card">
+					<div class="wizard-header">
+						<h2>Describe Your Idea</h2>
+						<div class="steps">
+							<span class="step active" data-step="1">1</span>
+							<span class="step" data-step="2">2</span>
+							<span class="step" data-step="3">3</span>
+						</div>
+					</div>
+					<div class="wizard-body">
+						<!-- Step 1 -->
+						<div class="wizard-step" data-step="1">
+							<div class="field">
+								<label>Describe your business idea</label>
+								<textarea id="idea-desc" rows="4" placeholder="Eco-friendly shoes in Dhaka serving young professionals..."></textarea>
+							</div>
+							<div class="row">
+								<div class="field">
+									<label>Location</label>
+									<input id="idea-location" type="text" value="Dhaka, Bangladesh">
+								</div>
+								<div class="field">
+									<label>Budget: <span id="budget-value">$10,000</span></label>
+									<input id="budget" type="range" min="500" max="50000" step="500" value="10000">
+								</div>
+								<div class="field">
+									<label>Category</label>
+									<select id="category">
+										<option>Fashion</option>
+										<option>Food</option>
+										<option>Tech</option>
+										<option>Services</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<!-- Step 2 -->
+						<div class="wizard-step" data-step="2" hidden>
+							<div class="row">
+								<div class="field">
+									<label>🎤 Describe by voice</label>
+									<div class="voice-row">
+										<button id="voice-btn" type="button" class="btn btn-secondary">Start Recording</button>
+										<span id="voice-status" class="muted">Idle</span>
+									</div>
+								</div>
+								<div class="field">
+									<label>📷 Upload sketches or competitor photos</label>
+									<input id="image-upload" type="file" accept="image/*" multiple>
+									<div id="image-preview" class="previews"></div>
+								</div>
+								<div class="field">
+									<label>📄 Upload existing business plan (PDF)</label>
+									<input id="pdf-upload" type="file" accept="application/pdf">
+									<div id="pdf-preview" class="previews"></div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Step 3 -->
+						<div class="wizard-step" data-step="3" hidden>
+							<div class="row">
+								<div class="field">
+									<label>Time horizon</label>
+									<div class="segmented">
+										<label><input type="radio" name="horizon" value="6m" checked> 6 months</label>
+										<label><input type="radio" name="horizon" value="1y"> 1 year</label>
+										<label><input type="radio" name="horizon" value="2y"> 2 years</label>
+									</div>
+								</div>
+								<div class="field">
+									<label>Risk tolerance</label>
+									<div class="segmented">
+										<label><input type="radio" name="risk" value="conservative" checked> Conservative</label>
+										<label><input type="radio" name="risk" value="moderate"> Moderate</label>
+										<label><input type="radio" name="risk" value="aggressive"> Aggressive</label>
+									</div>
+								</div>
+							</div>
+							<div class="summary" id="wizard-summary"></div>
+						</div>
+
+					<div class="wizard-footer">
+						<button id="prev-step" class="btn btn-secondary" disabled>Back</button>
+						<button id="next-step" class="btn btn-primary">Next</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Dashboard -->
+		<section id="view-dashboard" class="view">
+			<div class="container">
+					<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+						<aside class="lg:col-span-1 bg-white border border-[color:var(--muted)] rounded-xl p-4 shadow-sm sticky top-20">
+							<!-- Ideas Section -->
+							<div class="flex items-center justify-between mb-3">
+								<h3 class="text-lg font-extrabold text-[color:var(--ink)]">Your Ideas</h3>
+								<button id="new-idea" class="px-3 py-1 rounded-md bg-[color:var(--accent)] text-white text-sm font-bold">+ New</button>
+							</div>
+							<div class="relative">
+								<input id="idea-search" type="text" placeholder="Search ideas" class="w-full border border-[color:var(--muted)] rounded-lg py-2 pl-3 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]" />
+							</div>
+							<ul id="idea-list" class="mt-3 space-y-2"></ul>
+							<div class="flex gap-3 mt-4 text-sm text-[color:var(--ink-60)]">
+								<a href="#/settings" class="hover:underline">Settings</a>
+								<a href="#/billing" class="hover:underline">Billing</a>
+								<a href="#/help" class="hover:underline">Help</a>
+							</div>
+						</aside>
+
+					<section class="lg:col-span-3 bg-white border border-[color:var(--muted)] rounded-xl p-4 shadow-sm">
+						<div class="flex items-center justify-between">
+							<h2 id="workspace-title" class="text-2xl font-extrabold">Eco Shoes - Dhaka</h2>
+							<button id="chat-open" title="AI Chat" class="relative w-10 h-10 rounded-full grid place-items-center bg-[color:var(--primary)]">
+								<span id="chat-badge" class="absolute -top-1 -right-1 bg-[color:var(--accent)] text-white text-xs px-2 py-0.5 rounded-xl">3</span>
+								<span>💬</span>
+							</button>
+						</div>
+						<div class="mt-4">
+							<div class="bg-[color:var(--primaryLightest)] border border-[color:var(--primary)] rounded-lg p-4">
+								<h3 class="font-bold mb-1">Overview</h3>
+								<p class="text-[color:var(--ink-60)] text-sm">Here you'll find your generated models, simulations, and roadmap. Use the wizard to add more details and regenerate insights.</p>
+							</div>
+							<div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+								<div class="border border-[color:var(--muted)] rounded-lg p-3">
+									<h4 class="font-bold">Lean Canvas</h4>
+									<p class="text-[color:var(--ink-60)] text-sm">Problem, Solution, Key Metrics, Unique Value Proposition...</p>
+								</div>
+								<div class="border border-[color:var(--muted)] rounded-lg p-3">
+									<h4 class="font-bold">Simulation</h4>
+									<p class="text-[color:var(--ink-60)] text-sm">Pricing sensitivity and demand scenarios preview.</p>
+								</div>
+								<div class="border border-[color:var(--muted)] rounded-lg p-3">
+									<h4 class="font-bold">Roadmap</h4>
+									<p class="text-[color:var(--ink-60)] text-sm">Next steps over chosen time horizon.</p>
+								</div>
+							</div>
+						</div>
+					</section>
+					</div>
+			</div>
+		</section>
+</main>
+
+<!-- Confirm Modal -->
+<div id="confirm-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-40">
+	<div class="bg-white w-[92vw] max-w-sm rounded-2xl border border-[color:var(--muted)] shadow-2xl overflow-hidden">
+		<div class="p-4">
+			<h3 class="text-lg font-extrabold mb-1">Are you sure?</h3>
+			<p id="confirm-text" class="text-sm text-[color:var(--ink-60)]">This action cannot be undone.</p>
+		</div>
+		<div class="p-3 border-t border-[color:var(--muted)] flex items-center justify-end gap-2">
+			<button id="confirm-cancel" class="px-4 py-2 rounded-md border border-[color:var(--muted)]">Cancel</button>
+			<button id="confirm-ok" class="px-4 py-2 rounded-md bg-[color:var(--accent)] text-white font-bold">Delete</button>
+		</div>
+	</div>
+</div>
+
+<!-- Removed floating testimonials per request -->
+
+<footer class="app-footer">
+		<div class="container footer-inner">
+			<span>© <span id="year"></span> BizPilot</span>
+			<a href="#/privacy">Privacy</a>
+			<a href="#/terms">Terms</a>
+		</div>
+	</footer>
+
+	<script type="module" src="./db.js"></script>
+	<script src="./app.js"></script>
+	<script>
+		(function(){
+			const start = document.getElementById('cta-start');
+			if (!start) return;
+			try {
+				const user = JSON.parse(localStorage.getItem('bp_user')||'null');
+				if (user && user.uid) {
+					start.setAttribute('href','./wizard.html');
+				}
+			} catch {}
+		})();
+	</script>
+</body>
+</html>
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Compare - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="stylesheet" href="./styles.css">
+	<link rel="icon" href="./assets/logo.png">
+</head>
+<body>
+	<script>try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }</script>
+	<div class="container py-6">
+		<h1 class="text-2xl font-extrabold mb-3">Compare</h1>
+		<div class="flex flex-wrap items-center gap-2 mb-2">
+			<select id="cmp-a" class="border border-[color:var(--muted)] rounded-md px-2 py-1 text-sm"></select>
+			<select id="cmp-b" class="border border-[color:var(--muted)] rounded-md px-2 py-1 text-sm"></select>
+			<button id="cmp-run" class="px-3 py-1 rounded-md bg-[color:var(--primary)] font-bold text-sm">Compare</button>
+		</div>
+		<div id="cmp-result" class="text-sm text-[color:var(--ink-60)]"></div>
+	</div>
+
+	<script>
+	(function(){
+		const a = document.getElementById('cmp-a');
+		const b = document.getElementById('cmp-b');
+		const run = document.getElementById('cmp-run');
+		const out = document.getElementById('cmp-result');
+		function loadIdeas(){
+			let st = {}; try { st = JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); } catch {}
+			const ideas = (st.ideas && st.ideas.items) || [];
+			[a,b].forEach(sel => { sel.innerHTML = ''; ideas.forEach(i => { const opt = document.createElement('option'); opt.value = i.id; opt.textContent = i.name; sel.appendChild(opt); }); });
+		}
+		loadIdeas();
+		run.addEventListener('click', () => {
+			const va = a.value, vb = b.value; if (!va || !vb || va===vb) { out.textContent = 'Pick two different ideas.'; return; }
+			out.innerHTML = 'Model A vs B (mock):<br>- Revenue +12% for A<br>- CAC -8% for B<br>- Recommend: A for growth, B for lean ops';
+		});
+	})();
+	</script>
+</body>
+</html>
+
+

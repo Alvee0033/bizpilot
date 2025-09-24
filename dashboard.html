@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Dashboard - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css">
+	<link rel="icon" href="./assets/logo.png">
+</head>
+<body>
+	<script>
+		// Auth guard
+		try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }
+	</script>
+
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav items-center">
+				<a href="./index.html#" class="nav-link">Home</a>
+				<a href="./wizard.html" class="nav-link">Try Wizard</a>
+				<div class="relative ml-2">
+					<button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
+						<img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
+					</button>
+				</div>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<section class="view active" id="view-dashboard">
+			<div class="container">
+				<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+					<aside class="lg:col-span-1 bg-white border border-[color:var(--muted)] rounded-xl p-4 shadow-sm sticky top-20">
+						<div class="flex items-center justify-between mb-3">
+							<h3 class="text-lg font-extrabold text-[color:var(--ink)]">Your Ideas</h3>
+							<button id="new-idea" class="px-3 py-1 rounded-md bg-[color:var(--accent)] text-white text-sm font-bold">+ New</button>
+						</div>
+						<div class="relative">
+							<input id="idea-search" type="text" placeholder="Search ideas" class="w-full border border-[color:var(--muted)] rounded-lg py-2 pl-3 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]" />
+						</div>
+						<ul id="idea-list" class="mt-3 space-y-2"></ul>
+						
+					</aside>
+
+					<section class="lg:col-span-3 bg-white border border-[color:var(--muted)] rounded-xl p-4 shadow-sm">
+						<div class="flex items-center justify-between">
+							<h2 id="workspace-title" class="text-2xl font-extrabold">Workspace</h2>
+							<button id="chat-open" title="AI Chat" class="relative w-10 h-10 rounded-full grid place-items-center bg-[color:var(--primary)]">
+								<span id="chat-badge" class="absolute -top-1 -right-1 bg-[color:var(--accent)] text-white text-xs px-2 py-0.5 rounded-xl">3</span>
+								<span>💬</span>
+							</button>
+						</div>
+						<div class="mt-4">
+							<div class="bg-[color:var(--primaryLightest)] border border-[color:var(--primary)] rounded-lg p-4">
+								<h3 class="font-bold mb-1">Overview</h3>
+								<p class="text-[color:var(--ink-60)] text-sm">Here you'll find your generated models, simulations, and roadmap. Use the wizard to add more details and regenerate insights.</p>
+							</div>
+                            <div class="mt-3">
+								<!-- Tabs -->
+                                <div class="flex gap-2 text-xs">
+                                    <a class="px-3 py-2 rounded-md border border-[color:var(--muted)]" href="./models.html">Models</a>
+                                    <a class="px-3 py-2 rounded-md border border-[color:var(--muted)]" href="./compare.html">Compare</a>
+                                    <a class="px-3 py-2 rounded-md border border-[color:var(--muted)]" href="./tasks.html">Tasks</a>
+                                    <a class="px-3 py-2 rounded-md border border-[color:var(--muted)] flex items-center gap-1" href="./simulations.html">Simulations
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg>
+                                    </a>
+                                    <a class="px-3 py-2 rounded-md border border-[color:var(--muted)] flex items-center gap-1" href="./automations.html">Automations
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 3.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 3.6a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 16 3.6c.5 0 .98-.2 1.34-.56l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.36.36-.56.84-.56 1.34 0 .5.2.98.56 1.34l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 19.4 15z"/></svg>
+                                    </a>
+                                </div>
+								<!-- Panels -->
+                                <div id="tab-models" class="mt-2 grid grid-cols-1 gap-3">
+                                    <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                        <h4 class="font-bold mb-1">Models overview</h4>
+                                        <p class="text-sm text-[color:var(--ink-60)]">Select an idea to see model summaries, canvases, and notes.</p>
+                                    </div>
+                                    <div id="models-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+                                </div>
+								<div id="tab-compare" class="mt-2 hidden">
+									<div class="flex flex-wrap items-center gap-2 mb-2">
+										<select id="cmp-a" class="border border-[color:var(--muted)] rounded-md px-2 py-1 text-sm"></select>
+										<select id="cmp-b" class="border border-[color:var(--muted)] rounded-md px-2 py-1 text-sm"></select>
+										<button id="cmp-run" class="px-3 py-1 rounded-md bg-[color:var(--primary)] font-bold text-sm">Compare</button>
+									</div>
+									<div id="cmp-result" class="text-xs text-[color:var(--ink-60)]"></div>
+								</div>
+                                <div id="tab-tasks" class="mt-2 hidden">
+                                    <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                        <h4 class="font-bold mb-2">Auto-generated Checklist</h4>
+                                        <ul id="task-list" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-sm text-[color:var(--ink)]"></ul>
+									</div>
+								</div>
+                                <div id="tab-simulations" class="mt-2 hidden">
+                                    <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                        <h4 class="font-bold mb-2 flex items-center gap-2">Advanced Simulations <span class="text-[10px] px-2 py-0.5 rounded-md bg-[color:var(--ink)] text-white">Premium</span></h4>
+                                        <p class="text-sm text-[color:var(--ink-60)]">Unlock Monte Carlo risk assessments, variable sensitivity curves, and scenario planning.</p>
+                                        <a href="./billing.html" class="inline-block mt-2 px-4 py-2 rounded-md bg-[color:var(--primary)] font-bold">Upgrade to Pro</a>
+                                    </div>
+                                </div>
+                                <div id="tab-analytics" class="mt-2">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                            <h4 class="font-bold mb-2">Revenue Forecast</h4>
+                                            <canvas id="chart-revenue" height="140"></canvas>
+                                        </div>
+                                        <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                            <h4 class="font-bold mb-2">Cost Breakdown</h4>
+                                            <canvas id="chart-costs" height="140"></canvas>
+                                        </div>
+                                        <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                            <h4 class="font-bold mb-2">CAC vs LTV</h4>
+                                            <canvas id="chart-cacltv" height="140"></canvas>
+                                        </div>
+                                        <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                            <h4 class="font-bold mb-2">KPI Radar</h4>
+                                            <canvas id="chart-kpi" height="140"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tab-automations" class="mt-2 hidden">
+                                    <div class="border border-[color:var(--muted)] rounded-lg p-3">
+                                        <h4 class="font-bold mb-2 flex items-center gap-2">Operational Automations <span class="text-[10px] px-2 py-0.5 rounded-md bg-[color:var(--ink)] text-white">Premium</span></h4>
+                                        <p class="text-sm text-[color:var(--ink-60)]">Email templates, supplier workflows, API integrations, and scheduled alerts.</p>
+                                        <a href="./billing.html" class="inline-block mt-2 px-4 py-2 rounded-md bg-[color:var(--primary)] font-bold">Upgrade to Pro</a>
+                                    </div>
+                                </div>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+		</section>
+	</main>
+
+<!-- Confirm Modal (for Delete) -->
+<div id="confirm-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-40">
+	<div class="bg-white w-[92vw] max-w-sm rounded-2xl border border-[color:var(--muted)] shadow-2xl overflow-hidden">
+		<div class="p-4">
+			<h3 class="text-lg font-extrabold mb-1">Are you sure?</h3>
+			<p id="confirm-text" class="text-sm text-[color:var(--ink-60)]">This action cannot be undone.</p>
+		</div>
+		<div class="p-3 border-t border-[color:var(--muted)] flex items-center justify-end gap-2">
+			<button id="confirm-cancel" class="px-4 py-2 rounded-md border border-[color:var(--muted)]">Cancel</button>
+			<button id="confirm-ok" class="px-4 py-2 rounded-md bg-[color:var(--accent)] text-white font-bold">Delete</button>
+		</div>
+	</div>
+</div>
+
+	<footer class="app-footer">
+		<div class="container footer-inner">
+			<span>© <span id="year"></span> BizPilot</span>
+			<a href="#/privacy">Privacy</a>
+			<a href="#/terms">Terms</a>
+		</div>
+	</footer>
+
+	<script type="module" src="./db.js"></script>
+	<script src="./services/aiService.js"></script>
+	<script src="./app.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+(function(){
+        const tabs = document.querySelectorAll('[data-tab]');
+        const panels = {
+            analytics: document.getElementById('tab-analytics'),
+            models: document.getElementById('tab-models'),
+            compare: document.getElementById('tab-compare'),
+            tasks: document.getElementById('tab-tasks'),
+            simulations: document.getElementById('tab-simulations'),
+            automations: document.getElementById('tab-automations')
+        };
+        function showTab(k){ Object.values(panels).forEach(p => p && p.classList.add('hidden')); panels[k] && panels[k].classList.remove('hidden'); }
+        tabs.forEach(btn => btn.addEventListener('click', () => { const k = btn.getAttribute('data-tab'); showTab(k); }));
+        // Default to analytics on load
+        showTab('analytics');
+
+		// Mock charts
+		const revEl = document.getElementById('chart-revenue');
+		if (revEl && window.Chart) {
+			new Chart(revEl.getContext('2d'), {
+				type: 'line',
+				data: { labels: ['M1','M2','M3','M4','M5','M6'], datasets: [{ label: 'Revenue', data: [500, 1200, 2200, 3500, 4700, 6500], borderColor: '#171208', backgroundColor: 'rgba(23,18,8,0.1)', tension: .3 }] },
+				options: { responsive: true, plugins: { legend: { display: false } } }
+			});
+		}
+		const costEl = document.getElementById('chart-costs');
+		if (costEl && window.Chart) {
+			new Chart(costEl.getContext('2d'), {
+				type: 'doughnut',
+				data: { labels: ['COGS','Marketing','Ops'], datasets: [{ data: [45, 30, 25], backgroundColor: ['#EAB84E','#D01B22','#171208'] }] },
+				options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+			});
+		}
+		const cacEl = document.getElementById('chart-cacltv');
+		if (cacEl && window.Chart) {
+			new Chart(cacEl.getContext('2d'), {
+				type: 'bar',
+				data: { labels: ['Q1','Q2','Q3','Q4'], datasets: [
+					{ label: 'CAC', data: [12, 10, 9, 8], backgroundColor: 'rgba(208,27,34,0.6)' },
+					{ label: 'LTV', data: [60, 64, 70, 75], backgroundColor: 'rgba(23,18,8,0.6)' }
+				]},
+				options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+			});
+		}
+		const kpiEl = document.getElementById('chart-kpi');
+		if (kpiEl && window.Chart) {
+			new Chart(kpiEl.getContext('2d'), {
+				type: 'radar',
+				data: { labels: ['Growth','Retention','Margin','Reach','Satisfaction'], datasets: [
+					{ label: 'Target', data: [80,80,70,75,85], borderColor: '#171208', backgroundColor: 'rgba(23,18,8,0.1)' },
+					{ label: 'Current', data: [55,60,50,62,70], borderColor: '#D01B22', backgroundColor: 'rgba(208,27,34,0.1)' }
+				]},
+				options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+			});
+		}
+
+		// Compare mock
+		const cmpA = document.getElementById('cmp-a');
+		const cmpB = document.getElementById('cmp-b');
+		const cmpRun = document.getElementById('cmp-run');
+		const cmpResult = document.getElementById('cmp-result');
+		if (cmpA && cmpB && cmpRun && cmpResult) {
+			function loadIdeas(){
+				let st = {}; try { st = JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); } catch {}
+				const ideas = (st.ideas && st.ideas.items) || [];
+				[cmpA, cmpB].forEach(sel => { sel.innerHTML = ''; ideas.forEach(i => { const opt = document.createElement('option'); opt.value = i.id; opt.textContent = i.name; sel.appendChild(opt); }); });
+			}
+			loadIdeas();
+			cmpRun.addEventListener('click', () => {
+				const a = cmpA.value, b = cmpB.value; if (!a || !b || a===b) { cmpResult.textContent = 'Pick two different ideas.'; return; }
+				cmpResult.innerHTML = 'Model A vs B (mock):<br>- Revenue +12% for A<br>- CAC -8% for B<br>- Recommend: A for growth, B for lean ops';
+			});
+		}
+
+		// Tasks mock (auto checklist)
+		const taskList = document.getElementById('task-list');
+		if (taskList) {
+			const items = ['Register domain and social handles','Create brand kit (logo/colors)','Set up payment gateway','List first 3 SKUs','Publish landing page','Run 2 test ads','Interview 5 target users'];
+			taskList.innerHTML = '';
+			items.forEach((t, idx) => {
+				const li = document.createElement('li');
+				const id = 'task-' + idx;
+				li.innerHTML = `<label class="inline-flex items-center gap-2"><input id="${id}" type="checkbox"> <span>${t}</span></label>`;
+				taskList.appendChild(li);
+				const cb = li.querySelector('input');
+				const key = 'bp_task_' + t;
+				try { cb.checked = localStorage.getItem(key)==='1'; } catch {}
+				cb.addEventListener('change',()=>{ try { localStorage.setItem(key, cb.checked?'1':'0'); } catch {} });
+			});
+		}
+	})();
+	</script>
+	<script>
+		// Small page inits
+		(function(){
+			const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+			const hp = document.getElementById('header-profile-btn');
+			if (hp) hp.addEventListener('click', (e) => { e.preventDefault(); window.location.href = './index.html#/profile'; });
+		})();
+	</script>
+	<script>
+	// Navigate to AI Chatbot page when chat button is clicked
+	(function(){
+		const chatBtn = document.getElementById('chat-open');
+		if (chatBtn) {
+			chatBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				try { localStorage.setItem('bp_last_page', 'dashboard'); } catch {}
+				window.location.href = './chatbot.html';
+			});
+		}
+	})();
+	</script>
+</body>
+</html>
+
+

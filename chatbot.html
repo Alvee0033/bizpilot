@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - BizPilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" href="./assets/logo.png">
+</head>
+<body class="bg-[color:var(--primaryLightest)]">
+    <script>
+        try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }
+    </script>
+
+    <header class="app-header">
+        <div class="container header-inner">
+            <div class="brand">
+                <img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+                <div class="brand-text">
+                    <strong>BizPilot</strong>
+                    <span>AI Business Assistant</span>
+                </div>
+            </div>
+            <nav class="main-nav items-center">
+                <a href="./dashboard.html" class="nav-link">Dashboard</a>
+                <a href="./wizard.html" class="nav-link">Wizard</a>
+                <div class="relative ml-2">
+                    <button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
+                        <img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="view active" id="view-chat">
+            <div class="container">
+                <div class="max-w-3xl mx-auto bg-white border border-[color:var(--muted)] rounded-2xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-[color:var(--muted)] flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-extrabold" id="chat-title">Chatbot</h2>
+                            <p class="text-xs text-[color:var(--ink-60)]" id="chat-sub">Advice grounded in your selected idea.</p>
+                        </div>
+                        <a href="./dashboard.html" class="px-3 py-2 rounded-md border border-[color:var(--muted)] text-sm">Back</a>
+                    </div>
+                    <div id="chat-log" class="p-4 space-y-3 h-[60vh] overflow-y-auto bg-[color:var(--primaryLightest)]"></div>
+                    <div class="p-3 border-t border-[color:var(--muted)] bg-white">
+                        <form id="chat-form" class="flex gap-2">
+                            <input id="chat-input" type="text" class="flex-1 rounded-xl border border-[color:var(--muted)] px-3 py-2" placeholder="Ask about go-to-market, pricing, suppliers..." autocomplete="off">
+                            <button id="chat-send" type="submit" class="px-4 py-2 rounded-xl bg-[color:var(--primary)] font-bold">Send</button>
+                        </form>
+                        <div class="text-[10px] text-[color:var(--ink-60)] mt-1" id="seed-hint"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container footer-inner">
+            <span>© <span id="year"></span> BizPilot</span>
+            <a href="#/privacy">Privacy</a>
+            <a href="#/terms">Terms</a>
+        </div>
+    </footer>
+
+    <script type="module" src="./db.js"></script>
+    <script src="./services/aiService.js"></script>
+    <script>
+(function(){
+    function getStore(){
+        try { return JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); } catch { return {}; }
+    }
+    function setYear(){ const y = document.getElementById('year'); if (y) y.textContent = String(new Date().getFullYear()); }
+    function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
+    const chatLog = document.getElementById('chat-log');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    const title = document.getElementById('chat-title');
+    const sub = document.getElementById('chat-sub');
+    const seedHint = document.getElementById('seed-hint');
+    let history = [];
+    let ideaId = null;
+
+    function appendBubble(role, text){
+        const wrap = el('div');
+        const isUser = role === 'user';
+        wrap.className = 'flex ' + (isUser ? 'justify-end' : 'justify-start');
+        const bubble = el('div', 'max-w-[80%] px-3 py-2 rounded-2xl text-sm ' + (isUser ? 'bg-[color:var(--primary)]' : 'bg-white border border-[color:var(--muted)]'));
+        bubble.textContent = text;
+        wrap.appendChild(bubble);
+        chatLog.appendChild(wrap);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function seedSystemMessage(ideaName, wizard){
+        const take = (wizard && wizard.preferences && wizard.preferences.horizon) || '6m';
+        const risk = (wizard && wizard.preferences && wizard.preferences.risk) || 'conservative';
+        const loc = (wizard && wizard.location) || 'Unknown';
+        const cat = (wizard && wizard.category) || '';
+        seedHint.textContent = `Context: ${ideaName || 'Idea'} • ${loc} • ${cat} • Horizon ${take} • ${risk}`;
+    }
+
+    // removed explicit context injection to avoid the bot revealing background data
+
+    async function runChatTurn(userText){
+        const st = getStore();
+        const ideas = (st.ideas && st.ideas.items) || [];
+        ideaId = (st.ideas && st.ideas.selectedId) || (ideas[0] && ideas[0].id);
+        const sel = ideas.find(i => i.id === ideaId) || { name: 'Your Idea' };
+        const wizard = st.wizard || {};
+        const gps = (function(){ try { return JSON.parse(localStorage.getItem('bp_gps')||'null'); } catch { return null; } })();
+        history.push({ role: 'user', content: userText });
+        appendBubble('user', userText);
+        appendBubble('assistant', 'Thinking...');
+        const thinkingEl = chatLog.lastChild; // placeholder
+        try {
+            // Try to augment wizard with persisted assets for richer context
+            const user = (st.profile && st.profile.user) || null;
+            let wizForChat = wizard;
+            if (user && user.uid && window.DB && window.DB.readIdea && ideaId) {
+                try {
+                    const saved = await window.DB.readIdea(user.uid, ideaId);
+                    if (saved && (saved.photos || saved.pdf)) {
+                        wizForChat = Object.assign({}, wizard);
+                        // Convert remote URLs into inline base64 for Gemini context if CORS allows
+                        async function toDataUrl(url){
+                            try { const r = await fetch(url, { mode: 'cors' }); const b = await r.blob(); return await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }); } catch { return null; }
+                        }
+                        const images = [];
+                        if (Array.isArray(saved.photos)) {
+                            for (const p of saved.photos) {
+                                const dataUrl = await toDataUrl(p.url);
+                                if (dataUrl) images.push({ name: p.name || 'photo', data: String(dataUrl) });
+                            }
+                        }
+                        if (images.length) wizForChat.images = images;
+                        if (saved.pdf && saved.pdf.url) {
+                            const dataUrl = await toDataUrl(saved.pdf.url);
+                            if (dataUrl) wizForChat.pdf = { name: saved.pdf.name || 'document.pdf', data: String(dataUrl) };
+                        }
+                    }
+                } catch {}
+            }
+            // Pass any existing analysis for stronger context
+            const analysis = (st.analysisByIdea && st.analysisByIdea[ideaId]) || null;
+            const res = await window.AIService.chatWithIdea({ ideaName: sel.name, wizard: wizForChat, gps, history, analysis });
+            // replace placeholder
+            if (thinkingEl && thinkingEl.firstChild) thinkingEl.firstChild.textContent = res.reply || '...';
+            history.push({ role: 'assistant', content: res.reply || '' });
+            persistChat(ideaId, history);
+        } catch {
+            if (thinkingEl && thinkingEl.firstChild) thinkingEl.firstChild.textContent = 'AI service unavailable.';
+        }
+    }
+
+    // Persist chat per-idea with localStorage fallback and Firestore if available
+    function persistChat(id, hist){
+        try { localStorage.setItem(`bp_chat_${id}`, JSON.stringify(hist.slice(-50))); } catch {}
+        try {
+            const st = getStore();
+            const user = st.profile && st.profile.user;
+            if (user && user.uid && window.DB && window.DB.writeIdeaChat) {
+                window.DB.writeIdeaChat(user.uid, id, hist.slice(-100));
+            }
+        } catch {}
+    }
+
+    function loadChat(id){
+        try {
+            const raw = localStorage.getItem(`bp_chat_${id}`);
+            if (!raw) return [];
+            const arr = JSON.parse(raw);
+            return Array.isArray(arr) ? arr : [];
+        } catch { return []; }
+    }
+
+    window.addEventListener('load', () => {
+        setYear();
+        const st = getStore();
+        const ideas = (st.ideas && st.ideas.items) || [];
+        const selId = (st.ideas && st.ideas.selectedId) || (ideas[0] && ideas[0].id);
+        const sel = ideas.find(i => i.id === selId) || { name: 'Your Idea' };
+        title.textContent = `AI Chatbot — ${sel.name || 'Idea'}`;
+        sub.textContent = 'Advice grounded in your selected idea.';
+        seedSystemMessage(sel.name, st.wizard || {});
+        // Load previous chat for this idea
+        if (selId) {
+            ideaId = selId;
+            history = loadChat(selId);
+            history.forEach(m => appendBubble(m.role, m.content));
+        }
+
+        if (form && input) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = (input.value || '').trim();
+                if (!text) return;
+                input.value = '';
+                await runChatTurn(text);
+            });
+        }
+    });
+})();
+    </script>
+</body>
+</html>
+
+

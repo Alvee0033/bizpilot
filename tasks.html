@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tasks - BizPilot</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="stylesheet" href="./styles.css">
+	<link rel="icon" href="./assets/logo.png">
+</head>
+<body>
+	<script>try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }</script>
+	<div class="container py-6">
+		<h1 class="text-2xl font-extrabold mb-3">Tasks</h1>
+		<ul id="task-list" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-sm text-[color:var(--ink)]"></ul>
+	</div>
+	<script>
+	(function(){
+		const taskList = document.getElementById('task-list');
+		if (!taskList) return;
+		const items = ['Register domain and social handles','Create brand kit (logo/colors)','Set up payment gateway','List first 3 SKUs','Publish landing page','Run 2 test ads','Interview 5 target users'];
+		taskList.innerHTML = '';
+		items.forEach((t, idx) => {
+			const li = document.createElement('li');
+			const id = 'task-' + idx;
+			li.innerHTML = `<label class="inline-flex items-center gap-2"><input id="${id}" type="checkbox"> <span>${t}</span></label>`;
+			taskList.appendChild(li);
+			const cb = li.querySelector('input');
+			const key = 'bp_task_' + t;
+			try { cb.checked = localStorage.getItem(key)==='1'; } catch {}
+			cb.addEventListener('change',()=>{ try { localStorage.setItem(key, cb.checked?'1':'0'); } catch {} });
+		});
+	})();
+	</script>
+</body>
+</html>
+
+
