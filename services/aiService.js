@@ -263,5 +263,419 @@ Constraints:
 		}
 	}
 
-	window.AIService = { analyzeIdea, chatWithIdea };
+	async function analyzeFinancialData({ ideaName, data, context }){
+		const parts = [
+			{ text: `You are a financial analyst. Analyze the following financial data for the business idea "${ideaName}" and provide comprehensive insights and chart data in JSON format.` },
+			{ text: `Business Context: ${context ? JSON.stringify(context) : 'No additional context provided'}` },
+			{ text: `Data Type: ${data.type}` },
+			{ text: `Total Rows: ${data.rows.length}` },
+			{ text: `Columns: ${data.columns.join(', ')}` }
+		];
+
+		// Add the plain text data for AI analysis
+		if (data.plainText) {
+			parts.push({ text: `Financial Data (Plain Text Format):\n${data.plainText}` });
+		} else {
+			// Fallback to structured data if plain text not available
+			parts.push({ text: `Sample Data (first 5 rows): ${JSON.stringify(data.rows.slice(0, 5))}` });
+		}
+
+		parts.push({ 
+			text: `Based on the financial data provided, analyze and return a JSON response with this exact structure:
+			{
+				"insights": ["insight1", "insight2", "insight3"],
+				"chartData": {
+					"revenue": {
+						"labels": ["Q1", "Q2", "Q3", "Q4"],
+						"data": [1000, 1500, 2000, 2500]
+					},
+					"costs": {
+						"labels": ["COGS", "Marketing", "Operations"],
+						"data": [40, 30, 30]
+					},
+					"cacltv": {
+						"labels": ["Q1", "Q2", "Q3", "Q4"],
+						"cac": [50, 45, 40, 35],
+						"ltv": [200, 220, 250, 280]
+					},
+					"kpi": {
+						"labels": ["Growth", "Retention", "Margin", "Reach", "Satisfaction"],
+						"target": [80, 85, 70, 75, 90],
+						"current": [60, 70, 55, 65, 80]
+					}
+				},
+				"recommendations": ["recommendation1", "recommendation2"],
+				"riskAssessment": "Low/Medium/High",
+				"growthPotential": "Conservative/Moderate/Aggressive"
+			}
+			
+			Instructions:
+			- Analyze the actual data provided and extract meaningful financial patterns
+			- If the data contains revenue, costs, customer metrics, or other financial indicators, use those to generate realistic projections
+			- If the data is limited, provide reasonable estimates based on the business context and industry standards
+			- Ensure all chart data arrays have the same length as their corresponding labels arrays
+			- Make insights specific to the data patterns you observe
+			- Return ONLY valid JSON, no additional text or explanations`
+		});
+
+		try {
+			const json = await callGeminiJSON(parts);
+			console.log('AI Financial Analysis Result:', json);
+			return json;
+		} catch (err) {
+			console.error('Error during financial analysis:', err);
+			// Return fallback data structure
+			return {
+				insights: ['Data analysis failed - using fallback projections', 'Please check your data format and try again'],
+				chartData: {
+					revenue: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], data: [1000, 1200, 1400, 1600] },
+					costs: { labels: ['COGS', 'Marketing', 'Operations'], data: [45, 30, 25] },
+					cacltv: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], cac: [50, 45, 40, 35], ltv: [200, 220, 250, 280] },
+					kpi: { labels: ['Growth', 'Retention', 'Margin', 'Reach', 'Satisfaction'], target: [80, 85, 70, 75, 90], current: [60, 70, 55, 65, 80] }
+				},
+				recommendations: ['Review data format', 'Ensure numeric columns are properly formatted'],
+				riskAssessment: 'Medium',
+				growthPotential: 'Moderate'
+			};
+		}
+	}
+
+	async function analyzeIdeaWithPlainText({ ideaId, ideaName, plainTextData }){
+		const parts = [
+			{ text: `You are a senior business analyst. Analyze the following business idea and provide 3 distinct business models in JSON format.` },
+			{ text: `Business Idea Data:\n${plainTextData}` },
+			{ text: `Return STRICT JSON with this exact structure:
+			{
+				"models": [
+					{ 
+						"id": "model1", 
+						"name": "Model Name", 
+						"risk": "Low/Medium/High", 
+						"horizon": "6m/1y/2y", 
+						"revenue6m": number, 
+						"cac": number, 
+						"margin": number, 
+						"why": "explanation", 
+						"suitableFor": "target scenario",
+						"strengths": ["strength1", "strength2", "strength3"],
+						"weaknesses": ["weakness1", "weakness2", "weakness3"],
+						"score": number
+					}
+				],
+				"recommended": "Model Name",
+				"analysis": "Detailed analysis of why the recommended model is best",
+				"insights": ["insight1", "insight2", "insight3"],
+				"ranking": [
+					{ "name": "Model Name", "score": number, "reason": "why this model ranks here" }
+				]
+			}
+			
+			Instructions:
+			- Analyze the business idea thoroughly
+			- Create 3 distinct business models (e.g., Lean, Balanced, Aggressive)
+			- Provide realistic financial projections based on the idea context
+			- Recommend the most suitable model with detailed reasoning
+			- Return ONLY valid JSON, no additional text` }
+		];
+
+		try {
+			const json = await callGeminiJSON(parts);
+			console.log('AI Model Analysis Result:', json);
+			return json;
+		} catch (err) {
+			console.error('Error during model analysis:', err);
+			// Return fallback models
+			return {
+				models: [
+					{ 
+						id: 'lean', 
+						name: 'Lean Model', 
+						risk: 'Low', 
+						horizon: '6m', 
+						revenue6m: 15000, 
+						cac: 25, 
+						margin: 0.3, 
+						why: 'Conservative approach with low risk', 
+						suitableFor: 'Limited budget scenarios',
+						strengths: ['Low initial investment', 'Quick to market', 'Low risk'],
+						weaknesses: ['Limited scalability', 'Lower profit margins', 'Slower growth'],
+						score: 75
+					},
+					{ 
+						id: 'balanced', 
+						name: 'Balanced Model', 
+						risk: 'Medium', 
+						horizon: '1y', 
+						revenue6m: 35000, 
+						cac: 20, 
+						margin: 0.4, 
+						why: 'Balanced growth with moderate risk', 
+						suitableFor: 'Standard business scenarios',
+						strengths: ['Steady growth', 'Good risk-reward ratio', 'Sustainable'],
+						weaknesses: ['Moderate competition', 'Requires more capital', 'Medium complexity'],
+						score: 85
+					},
+					{ 
+						id: 'aggressive', 
+						name: 'Aggressive Model', 
+						risk: 'High', 
+						horizon: '2y', 
+						revenue6m: 75000, 
+						cac: 15, 
+						margin: 0.5, 
+						why: 'High growth potential with higher risk', 
+						suitableFor: 'Growth-focused scenarios',
+						strengths: ['High growth potential', 'Market leadership', 'High margins'],
+						weaknesses: ['High risk', 'Requires significant capital', 'Complex execution'],
+						score: 70
+					}
+				],
+				recommended: 'Balanced Model',
+				analysis: 'AI analysis failed - showing fallback models',
+				insights: ['Analysis service unavailable', 'Using default model recommendations'],
+				ranking: [
+					{ name: 'Balanced Model', score: 85, reason: 'Best overall risk-reward ratio' },
+					{ name: 'Lean Model', score: 75, reason: 'Good for beginners with limited capital' },
+					{ name: 'Aggressive Model', score: 70, reason: 'High potential but requires significant resources' }
+				]
+			};
+		}
+	}
+
+	async function analyzeLocationViability({ businessData, locationData }){
+		const parts = [
+			{ text: `You are a business location analyst. Analyze if this business will survive and thrive in the specified location.` },
+			{ text: `Business Information:
+			- Name: ${businessData.title || 'Business'}
+			- Description: ${businessData.description || 'No description'}
+			- Category: ${businessData.category || 'General'}
+			- Budget: $${businessData.budget || 0}
+			- Target Market: ${businessData.age || 'Not specified'} age, ${businessData.gender || 'Not specified'} gender
+			- Pricing: $${businessData.price || 0} (${businessData.pricingModel || 'Not specified'})
+			- Value Proposition: ${businessData.valueProp || 'Not specified'}` },
+			{ text: `Location Information:
+			- Address: ${locationData.address || 'Not specified'}
+			- Coordinates: ${locationData.lat}, ${locationData.lng}
+			- City: ${locationData.city || 'Not specified'}
+			- State/Region: ${locationData.state || 'Not specified'}
+			- Country: ${locationData.country || 'Not specified'}
+			- Population: ${locationData.population || 'Not available'}
+			- Economic Indicators: ${locationData.economicData || 'Not available'}` },
+			{ text: `Return STRICT JSON with this exact structure:
+			{
+				"survivalScore": number (0-100),
+				"viability": "High/Medium/Low",
+				"keyFactors": ["factor1", "factor2", "factor3"],
+				"marketAnalysis": {
+					"demand": "High/Medium/Low",
+					"competition": "High/Medium/Low",
+					"accessibility": "High/Medium/Low",
+					"economicClimate": "Favorable/Neutral/Challenging"
+				},
+				"risks": ["risk1", "risk2", "risk3"],
+				"opportunities": ["opportunity1", "opportunity2", "opportunity3"],
+				"recommendations": ["recommendation1", "recommendation2", "recommendation3"],
+				"alternativeLocations": ["location1", "location2"],
+				"summary": "Detailed summary of location viability"
+			}
+			
+			Instructions:
+			- Analyze the business model against the location's characteristics
+			- Consider market demand, competition, accessibility, and economic factors
+			- Provide a survival score from 0-100
+			- Identify key risks and opportunities
+			- Suggest alternative locations if current location is not ideal
+			- Return ONLY valid JSON, no additional text` }
+		];
+
+		try {
+			const json = await callGeminiJSON(parts);
+			console.log('AI Location Analysis Result:', json);
+			return json;
+		} catch (err) {
+			console.error('Error during location analysis:', err);
+			// Return fallback analysis
+			return {
+				survivalScore: 65,
+				viability: 'Medium',
+				keyFactors: ['Market demand analysis needed', 'Competition assessment required', 'Economic climate evaluation needed'],
+				marketAnalysis: {
+					demand: 'Medium',
+					competition: 'Medium',
+					accessibility: 'Medium',
+					economicClimate: 'Neutral'
+				},
+				risks: ['Limited market data available', 'Competition analysis incomplete'],
+				opportunities: ['Market research needed', 'Local partnerships potential'],
+				recommendations: ['Conduct detailed market research', 'Analyze local competition', 'Evaluate economic indicators'],
+				alternativeLocations: ['Nearby cities', 'Adjacent neighborhoods'],
+				summary: 'AI analysis service unavailable. Please conduct manual market research for accurate location viability assessment.'
+			};
+		}
+	}
+
+	async function generateBusinessTasks({ ideaData, locationData, businessModel }){
+		const parts = [
+			{ text: `You are a business growth consultant. Generate specific, actionable tasks to help this business grow and succeed.` },
+			{ text: `Business Information:
+			- Name: ${ideaData.title || 'Business'}
+			- Description: ${ideaData.description || 'No description'}
+			- Category: ${ideaData.category || 'General'}
+			- Budget: $${ideaData.budget || 0}
+			- Location: ${ideaData.location || 'Not specified'}
+			- Target Market: ${ideaData.age || 'Not specified'} age, ${ideaData.gender || 'Not specified'} gender
+			- Value Proposition: ${ideaData.valueProp || 'Not specified'}
+			- Pricing: $${ideaData.price || 0} (${ideaData.pricingModel || 'Not specified'})` },
+			{ text: `Location Context:
+			- Address: ${locationData.address || 'Not specified'}
+			- Coordinates: ${locationData.lat}, ${locationData.lng}
+			- Market Analysis: Consider local competition, demographics, and economic factors` },
+			{ text: `Business Model: ${businessModel || 'General business model'}` },
+			{ text: `Return STRICT JSON with this exact structure:
+			{
+				"tasks": [
+					{
+						"id": "task1",
+						"title": "Task title",
+						"category": "Setup/Marketing/Operations/Finance/Legal",
+						"priority": "High/Medium/Low",
+						"timeline": "1-2 weeks/1 month/2-3 months",
+						"description": "Detailed description of what needs to be done",
+						"resources": ["resource1", "resource2"],
+						"successMetrics": "How to measure success"
+					}
+				],
+				"summary": "Overall strategy summary",
+				"nextSteps": ["immediate action 1", "immediate action 2"]
+			}
+			
+			Instructions:
+			- Generate 8-12 specific, actionable tasks
+			- Consider the business type, location, and target market
+			- Include tasks for setup, marketing, operations, and growth
+			- Prioritize tasks based on business needs and timeline
+			- Make tasks location-specific and industry-relevant
+			- Return ONLY valid JSON, no additional text` }
+		];
+
+		try {
+			const json = await callGeminiJSON(parts);
+			console.log('AI Task Generation Result:', json);
+			return json;
+		} catch (err) {
+			console.error('Error during task generation:', err);
+			// Return fallback tasks
+			return {
+				tasks: [
+					{
+						id: "task1",
+						title: "Register business domain and social media handles",
+						category: "Setup",
+						priority: "High",
+						timeline: "1-2 weeks",
+						description: "Secure your online presence with a professional domain and consistent social media handles",
+						resources: ["Domain registrar", "Social media platforms"],
+						successMetrics: "Domain registered, social handles secured"
+					},
+					{
+						id: "task2",
+						title: "Create brand identity and marketing materials",
+						category: "Marketing",
+						priority: "High",
+						timeline: "2-3 weeks",
+						description: "Develop logo, color scheme, and basic marketing materials for brand consistency",
+						resources: ["Design tools", "Brand guidelines"],
+						successMetrics: "Logo created, brand kit completed"
+					},
+					{
+						id: "task3",
+						title: "Set up payment processing system",
+						category: "Finance",
+						priority: "High",
+						timeline: "1-2 weeks",
+						description: "Choose and integrate payment gateway for customer transactions",
+						resources: ["Payment processors", "Bank account"],
+						successMetrics: "Payment system operational"
+					}
+				],
+				summary: "Focus on establishing online presence, brand identity, and payment processing for business launch",
+				nextSteps: ["Register domain", "Create brand materials", "Set up payments"]
+			};
+		}
+	}
+
+	// Enhanced chat function with web search support
+	async function chatWithIdeaEnhanced({ ideaName, wizard, gps, history, analysis, webSearchResults }){
+		const system = buildChatSystemPrompt({ ideaName, wizard, gps });
+		const hidden = buildPrivateContextSummary({ ideaName, wizard, analysis });
+		const parts = [{ text: system }, { text: hidden }];
+		
+		// Add web search results if available
+		if (webSearchResults && webSearchResults.length > 0) {
+			const searchContext = `Current web search results for context:\n${webSearchResults.map(r => `- ${r.title}: ${r.snippet}`).join('\n')}`;
+			parts.push({ text: searchContext });
+		}
+		
+		// Attach inline assets if available (base64 data URLs from wizard)
+		try {
+			const imgs = (wizard && wizard.images) || [];
+			for (const img of imgs) { if (img && img.data && String(img.data).startsWith('data:')) { const p = dataUrlToInline(img.data); if (p) parts.push(p); } }
+			if (wizard && wizard.pdf && wizard.pdf.data && String(wizard.pdf.data).startsWith('data:')) { const p = dataUrlToInline(wizard.pdf.data); if (p) parts.push(p); }
+		} catch {}
+		
+		const safeHistory = Array.isArray(history) ? history.slice(-12) : [];
+		for (const msg of safeHistory) {
+			if (!msg || typeof msg.role !== 'string' || typeof msg.content !== 'string') continue;
+			const roleTag = msg.role === 'user' ? 'User' : 'Assistant';
+			parts.push({ text: `\n${roleTag}: ${msg.content}` });
+		}
+		
+		// Add a final assistant directive for structure
+		parts.push({ text: '\nAssistant: Provide a helpful, well-formatted response. Use **bold** for emphasis, *italics* for subtle emphasis, and `code` for technical terms. Keep responses conversational and actionable.' });
+		
+		try {
+			const apiResp = await callGeminiPlainText(parts);
+			// Ensure we return plain text, not JSON
+			const text = typeof apiResp === 'string' ? apiResp : (apiResp.reply || apiResp.summary || 'I apologize, but I encountered an issue processing your request.');
+			return { reply: text, raw: apiResp };
+		} catch (err) {
+			console.error('Enhanced chat error:', err);
+			return { reply: 'I apologize, but I encountered an issue processing your request. Please try again shortly.', raw: null };
+		}
+	}
+
+	// Call Gemini API for plain text responses (not JSON)
+	async function callGeminiPlainText(parts){
+		const apiKey = getApiKey();
+		const url = `${DEFAULT_ENDPOINT}?key=${encodeURIComponent(apiKey)}`;
+		const body = {
+			contents: [{ parts }],
+			generationConfig: { 
+				response_mime_type: 'text/plain',
+				temperature: 0.7,
+				maxOutputTokens: 2048
+			}
+		};
+		const ctrl = new AbortController();
+		const t = setTimeout(() => { try { ctrl.abort(); } catch {} }, 30000);
+		let res;
+		try {
+			res = await fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+				signal: ctrl.signal
+			});
+		} finally {
+			clearTimeout(t);
+		}
+		if (!res || !res.ok) throw new Error(`Gemini error ${res ? res.status : 'no_response'}`);
+		let data;
+		try { data = await res.json(); } catch { throw new Error('Gemini invalid JSON envelope'); }
+		const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text || '';
+		if (!text) throw new Error('Gemini empty response');
+		return text;
+	}
+
+	window.AIService = { analyzeIdea, chatWithIdea, chatWithIdeaEnhanced, analyzeFinancialData, analyzeIdeaWithPlainText, analyzeLocationViability, generateBusinessTasks };
 })();

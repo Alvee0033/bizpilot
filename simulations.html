@@ -3,22 +3,1140 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Simulations - BizPilot</title>
+	<title>Advanced Simulations - BizPilot</title>
 	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="./styles.css">
 	<link rel="icon" href="./assets/logo.png">
+	<style>
+		.slider-container {
+			position: relative;
+			margin: 10px 0;
+		}
+		.slider {
+			width: 100%;
+			height: 6px;
+			border-radius: 3px;
+			background: var(--muted);
+			outline: none;
+			-webkit-appearance: none;
+		}
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: var(--primary);
+			cursor: pointer;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+		}
+		.slider::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: var(--primary);
+			cursor: pointer;
+			border: none;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+		}
+		.slider-value {
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: var(--ink);
+			color: white;
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-size: 12px;
+			font-weight: bold;
+		}
+		.simulation-card {
+			background: var(--card);
+			border: 1px solid var(--muted);
+			border-radius: 12px;
+			padding: 20px;
+			margin: 16px 0;
+			box-shadow: var(--shadow);
+		}
+		.metric-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 16px;
+			margin: 16px 0;
+		}
+		.metric-card {
+			background: var(--primary-lightest);
+			border: 1px solid var(--primary);
+			border-radius: 8px;
+			padding: 12px;
+			text-align: center;
+		}
+		.metric-value {
+			font-size: 24px;
+			font-weight: bold;
+			color: var(--ink);
+		}
+		.metric-label {
+			font-size: 12px;
+			color: var(--ink-60);
+			margin-top: 4px;
+		}
+		.chart-container {
+			height: 300px;
+			background: var(--primary-lightest);
+			border: 1px solid var(--primary);
+			border-radius: 8px;
+			margin: 16px 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--ink-60);
+		}
+		.loading {
+			display: none;
+			text-align: center;
+			padding: 40px;
+		}
+		.loading.active {
+			display: block;
+		}
+		.spinner {
+			border: 3px solid var(--muted);
+			border-top: 3px solid var(--primary);
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			animation: spin 1s linear infinite;
+			margin: 0 auto 16px;
+		}
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+		.insight-card {
+			background: linear-gradient(135deg, var(--primary-lightest) 0%, #fff 100%);
+			border: 1px solid var(--primary);
+			border-radius: 8px;
+			padding: 16px;
+			margin: 12px 0;
+		}
+		.insight-title {
+			font-weight: bold;
+			color: var(--ink);
+			margin-bottom: 8px;
+		}
+		.insight-text {
+			font-size: 14px;
+			color: var(--ink-60);
+			line-height: 1.4;
+		}
+		
+		/* Toggle Switch Styles */
+		#load-from-idea-toggle:checked + .relative .absolute {
+			transform: translateX(16px);
+		}
+		#load-from-idea-toggle:checked + .relative .w-10 {
+			background-color: var(--primary);
+		}
+	</style>
 </head>
 <body>
 	<script>try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }</script>
-	<div class="container py-6">
-		<h1 class="text-2xl font-extrabold mb-3">Simulations</h1>
-		<div class="border border-[color:var(--muted)] rounded-lg p-3">
-			<h4 class="font-bold mb-2 flex items-center gap-2">Advanced Simulations <span class="text-[10px] px-2 py-0.5 rounded-md bg-[color:var(--ink)] text-white">Premium</span></h4>
-			<p class="text-sm text-[color:var(--ink-60)]">Unlock Monte Carlo risk assessments, variable sensitivity curves, and scenario planning.</p>
-			<a href="./billing.html" class="inline-block mt-2 px-4 py-2 rounded-md bg-[color:var(--primary)] font-bold">Upgrade to Pro</a>
+
+	<header class="app-header">
+		<div class="container header-inner">
+			<div class="brand">
+				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
+				<div class="brand-text">
+					<strong>BizPilot</strong>
+					<span>AI Business Assistant</span>
+				</div>
+			</div>
+			<nav class="main-nav items-center">
+				<a href="./index.html" class="nav-link">Home</a>
+				<a href="./dashboard.html" class="nav-link">Dashboard</a>
+				<a href="./wizard.html" class="nav-link">Wizard</a>
+				<div class="relative ml-2">
+					<button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
+						<img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
+					</button>
+				</div>
+			</nav>
 		</div>
-	</div>
+	</header>
+
+	<main>
+		<div class="container py-6">
+			<div class="flex items-center justify-between mb-6">
+				<div>
+					<h1 class="text-3xl font-extrabold text-[color:var(--ink)]">Advanced Business Simulations</h1>
+					<p class="text-[color:var(--ink-60)] mt-2">Monte Carlo analysis, scenario planning, and real-time optimization</p>
+				</div>
+				<button id="new-simulation-btn" class="btn btn-primary">New Simulation</button>
+			</div>
+
+			<!-- Input Form Section -->
+			<div id="input-section" class="simulation-card">
+				<h2 class="text-xl font-bold mb-4">Business Model Input</h2>
+				
+				<!-- Idea Selection Toggle -->
+				<div class="mb-6 p-4 bg-gradient-to-r from-[color:var(--primaryLightest)] to-white border border-[color:var(--primary)] rounded-xl">
+					<div class="flex items-center justify-between mb-3">
+						<h3 class="font-bold text-[color:var(--ink)] flex items-center">
+							<svg class="w-5 h-5 mr-2 text-[color:var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+								<path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+							</svg>
+							Load from Existing Idea
+						</h3>
+						<label class="flex items-center cursor-pointer">
+							<input type="checkbox" id="load-from-idea-toggle" class="sr-only">
+							<div class="relative">
+								<div class="w-10 h-6 bg-gray-200 rounded-full shadow-inner"></div>
+								<div class="absolute w-4 h-4 bg-white rounded-full shadow top-1 left-1 transition-transform duration-200 ease-in-out"></div>
+							</div>
+						</label>
+					</div>
+					
+					<div id="idea-selection" class="hidden">
+						<div class="flex flex-col sm:flex-row gap-3">
+							<div class="flex-1">
+								<select id="idea-select" class="w-full px-3 py-2 border border-[color:var(--muted)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]">
+									<option value="">Select an idea to load...</option>
+								</select>
+							</div>
+							<button type="button" id="load-idea-btn" class="px-4 py-2 bg-[color:var(--primary)] text-white font-bold rounded-lg hover:bg-[color:var(--accent)] transition-colors disabled:opacity-50" disabled>
+								Load Idea Data
+							</button>
+						</div>
+						<div id="idea-load-status" class="mt-2 text-sm hidden"></div>
+					</div>
+				</div>
+				
+				<form id="simulation-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+					<!-- Basic Information -->
+					<div class="space-y-4">
+						<h3 class="font-bold text-[color:var(--ink)]">Basic Information</h3>
+						<div class="field">
+							<label>Business Title</label>
+							<input type="text" id="title" placeholder="e.g., Eco-Friendly Coffee Shop" required>
+						</div>
+						<div class="field">
+							<label>Description</label>
+							<textarea id="description" placeholder="Brief description of your business idea" rows="3"></textarea>
+						</div>
+						<div class="field">
+							<label>Location</label>
+							<div class="flex gap-2">
+								<input type="text" id="location" placeholder="e.g., San Francisco, CA" required class="flex-1">
+								<button type="button" id="get-location-btn" class="px-3 py-2 bg-[color:var(--primary)] text-white rounded-lg hover:bg-[color:var(--accent)] transition-colors" title="Get current location">
+									<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+									</svg>
+								</button>
+							</div>
+							<div id="location-details" class="mt-2 text-sm hidden"></div>
+						</div>
+						<div class="field">
+							<label>Initial Budget ($)</label>
+							<input type="number" id="budget" placeholder="50000" min="1000" required>
+						</div>
+						<div class="field">
+							<label>Category</label>
+							<select id="category" required>
+								<option value="">Select Category</option>
+								<option value="retail">Retail</option>
+								<option value="food">Food & Beverage</option>
+								<option value="tech">Technology</option>
+								<option value="services">Professional Services</option>
+								<option value="healthcare">Healthcare</option>
+								<option value="education">Education</option>
+								<option value="manufacturing">Manufacturing</option>
+								<option value="other">Other</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Target Market -->
+					<div class="space-y-4">
+						<h3 class="font-bold text-[color:var(--ink)]">Target Market</h3>
+						<div class="field">
+							<label>Customer Age Range</label>
+							<select id="age" required>
+								<option value="">Select Age Range</option>
+								<option value="18-25">18-25 (Gen Z)</option>
+								<option value="26-35">26-35 (Millennials)</option>
+								<option value="36-45">36-45 (Gen X)</option>
+								<option value="46-55">46-55 (Gen X)</option>
+								<option value="56-65">56-65 (Boomers)</option>
+								<option value="65+">65+ (Seniors)</option>
+							</select>
+						</div>
+						<div class="field">
+							<label>Target Gender</label>
+							<select id="gender" required>
+								<option value="">Select Gender</option>
+								<option value="all">All Genders</option>
+								<option value="male">Male</option>
+								<option value="female">Female</option>
+								<option value="non-binary">Non-binary</option>
+							</select>
+						</div>
+						<div class="field">
+							<label>Customer Profession</label>
+							<input type="text" id="job" placeholder="e.g., Software Engineers, Teachers" required>
+						</div>
+					</div>
+
+					<!-- Business Strategy -->
+					<div class="space-y-4">
+						<h3 class="font-bold text-[color:var(--ink)]">Business Strategy</h3>
+						<div class="field">
+							<label>Key Pain Points</label>
+							<textarea id="keyPains" placeholder="What problems does your business solve?" rows="3"></textarea>
+						</div>
+						<div class="field">
+							<label>Value Proposition</label>
+							<textarea id="valueProposition" placeholder="What makes you unique?" rows="3"></textarea>
+						</div>
+						<div class="field">
+							<label>Pricing Model</label>
+							<select id="pricingModel" required>
+								<option value="">Select Model</option>
+								<option value="one-time">One-time Purchase</option>
+								<option value="subscription">Subscription</option>
+								<option value="freemium">Freemium</option>
+								<option value="tiered">Tiered Pricing</option>
+								<option value="usage-based">Usage-based</option>
+							</select>
+						</div>
+						<div class="field">
+							<label>Price Point ($)</label>
+							<input type="number" id="price" placeholder="25" min="1" required>
+						</div>
+						<div class="field">
+							<label>Business Horizon</label>
+							<select id="horizon" required>
+								<option value="">Select Timeline</option>
+								<option value="6-months">6 Months</option>
+								<option value="1-year">1 Year</option>
+								<option value="2-years">2 Years</option>
+								<option value="3-years">3 Years</option>
+								<option value="5-years">5 Years</option>
+							</select>
+						</div>
+						<div class="field">
+							<label>Risk Tolerance</label>
+							<select id="riskLevel" required>
+								<option value="">Select Risk Level</option>
+								<option value="conservative">Conservative</option>
+								<option value="moderate">Moderate</option>
+								<option value="aggressive">Aggressive</option>
+							</select>
+						</div>
+					</div>
+				</form>
+				
+				<!-- Location Analysis Section -->
+				<div id="location-analysis-section" class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl hidden">
+					<div class="flex items-center justify-between mb-3">
+						<h3 class="font-bold text-blue-900 flex items-center">
+							<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+								<path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+							</svg>
+							Location Viability Analysis
+						</h3>
+						<button id="analyze-location-btn" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">
+							<span id="analyze-location-text">Analyze Location</span>
+							<span id="analyze-location-loading" class="hidden">Analyzing...</span>
+						</button>
+					</div>
+					<div id="location-analysis-results" class="hidden">
+						<div id="location-survival-score" class="mb-4"></div>
+						<div id="location-insights" class="mb-4"></div>
+						<div id="location-recommendations" class="mb-4"></div>
+					</div>
+				</div>
+				
+				<div class="flex justify-end mt-6">
+					<button id="run-simulation-btn" class="btn btn-primary btn-lg">Run Advanced Simulation</button>
+				</div>
+			</div>
+
+			<!-- Loading State -->
+			<div id="loading-section" class="loading">
+				<div class="spinner"></div>
+				<h3 class="text-lg font-bold text-[color:var(--ink)]">Running Monte Carlo Analysis...</h3>
+				<p class="text-[color:var(--ink-60)]">Generating 1000+ scenarios and calculating probabilities</p>
+			</div>
+
+			<!-- Results Section -->
+			<div id="results-section" style="display: none;">
+				<!-- Interactive Sliders -->
+				<div class="simulation-card">
+					<h2 class="text-xl font-bold mb-4">Interactive Variables</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="slider-container">
+							<label class="block font-bold mb-2">Pricing ($)</label>
+							<div class="slider-value" id="price-value">$25</div>
+							<input type="range" id="price-slider" class="slider" min="12.5" max="50" step="2.5" value="25">
+						</div>
+						<div class="slider-container">
+							<label class="block font-bold mb-2">Marketing Budget (%)</label>
+							<div class="slider-value" id="marketing-value">15%</div>
+							<input type="range" id="marketing-slider" class="slider" min="5" max="40" step="5" value="15">
+						</div>
+						<div class="slider-container">
+							<label class="block font-bold mb-2">Market Size (%)</label>
+							<div class="slider-value" id="market-value">50%</div>
+							<input type="range" id="market-slider" class="slider" min="10" max="100" step="10" value="50">
+						</div>
+						<div class="slider-container">
+							<label class="block font-bold mb-2">Timeline (months)</label>
+							<div class="slider-value" id="timeline-value">12</div>
+							<input type="range" id="timeline-slider" class="slider" min="6" max="36" step="6" value="12">
+						</div>
+					</div>
+				</div>
+
+				<!-- Real-time Insights -->
+				<div id="insights-section" class="simulation-card">
+					<h2 class="text-xl font-bold mb-4">Real-time Insights</h2>
+					<div id="insights-container">
+						<!-- Dynamic insights will be populated here -->
+					</div>
+				</div>
+
+				<!-- Business Models -->
+				<div id="models-section">
+					<!-- Lean Model -->
+					<div class="simulation-card">
+						<div class="flex items-center justify-between mb-4">
+							<h2 class="text-xl font-bold text-green-600">LEAN MODEL</h2>
+							<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-bold">Conservative Growth</span>
+						</div>
+						<div class="metric-grid">
+							<div class="metric-card">
+								<div class="metric-value" id="lean-revenue">$0</div>
+								<div class="metric-label">Monthly Revenue</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="lean-profit">$0</div>
+								<div class="metric-label">Monthly Profit</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="lean-customers">0</div>
+								<div class="metric-label">Active Customers</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="lean-breakeven">0</div>
+								<div class="metric-label">Break-even (months)</div>
+							</div>
+						</div>
+						<div class="chart-container">
+							<div>Revenue Growth Chart (Lean Model)</div>
+						</div>
+					</div>
+
+					<!-- Balanced Model -->
+					<div class="simulation-card">
+						<div class="flex items-center justify-between mb-4">
+							<h2 class="text-xl font-bold text-blue-600">BALANCED MODEL</h2>
+							<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-bold">Moderate Growth</span>
+						</div>
+						<div class="metric-grid">
+							<div class="metric-card">
+								<div class="metric-value" id="balanced-revenue">$0</div>
+								<div class="metric-label">Monthly Revenue</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="balanced-profit">$0</div>
+								<div class="metric-label">Monthly Profit</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="balanced-customers">0</div>
+								<div class="metric-label">Active Customers</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="balanced-breakeven">0</div>
+								<div class="metric-label">Break-even (months)</div>
+							</div>
+						</div>
+						<div class="chart-container">
+							<div>Revenue Growth Chart (Balanced Model)</div>
+						</div>
+					</div>
+
+					<!-- Aggressive Model -->
+					<div class="simulation-card">
+						<div class="flex items-center justify-between mb-4">
+							<h2 class="text-xl font-bold text-red-600">AGGRESSIVE MODEL</h2>
+							<span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-bold">High Growth</span>
+						</div>
+						<div class="metric-grid">
+							<div class="metric-card">
+								<div class="metric-value" id="aggressive-revenue">$0</div>
+								<div class="metric-label">Monthly Revenue</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="aggressive-profit">$0</div>
+								<div class="metric-label">Monthly Profit</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="aggressive-customers">0</div>
+								<div class="metric-label">Active Customers</div>
+							</div>
+							<div class="metric-card">
+								<div class="metric-value" id="aggressive-breakeven">0</div>
+								<div class="metric-label">Break-even (months)</div>
+							</div>
+						</div>
+						<div class="chart-container">
+							<div>Revenue Growth Chart (Aggressive Model)</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<script>
+		// Global simulation data
+		let simulationData = null;
+		let currentSliders = {
+			price: 25,
+			marketing: 15,
+			market: 50,
+			timeline: 12
+		};
+
+		// Initialize the page
+		document.addEventListener('DOMContentLoaded', function() {
+			initializeSliders();
+			initializeForm();
+		});
+
+		function initializeSliders() {
+			const sliders = ['price', 'marketing', 'market', 'timeline'];
+			
+			sliders.forEach(sliderId => {
+				const slider = document.getElementById(`${sliderId}-slider`);
+				const valueDisplay = document.getElementById(`${sliderId}-value`);
+				
+				slider.addEventListener('input', function() {
+					const value = this.value;
+					currentSliders[sliderId] = parseFloat(value);
+					
+					// Update display
+					if (sliderId === 'price') {
+						valueDisplay.textContent = `$${value}`;
+					} else if (sliderId === 'marketing') {
+						valueDisplay.textContent = `${value}%`;
+					} else if (sliderId === 'market') {
+						valueDisplay.textContent = `${value}%`;
+					} else if (sliderId === 'timeline') {
+						valueDisplay.textContent = `${value} months`;
+					}
+					
+					// Update simulation if data exists
+					if (simulationData) {
+						updateSimulation();
+					}
+				});
+			});
+		}
+
+		function initializeForm() {
+			document.getElementById('run-simulation-btn').addEventListener('click', function() {
+				runSimulation();
+			});
+		}
+
+		function runSimulation() {
+			// Get form data
+			const formData = {
+				title: document.getElementById('title').value,
+				description: document.getElementById('description').value,
+				location: document.getElementById('location').value,
+				budget: parseFloat(document.getElementById('budget').value),
+				category: document.getElementById('category').value,
+				age: document.getElementById('age').value,
+				gender: document.getElementById('gender').value,
+				job: document.getElementById('job').value,
+				keyPains: document.getElementById('keyPains').value,
+				valueProposition: document.getElementById('valueProposition').value,
+				pricingModel: document.getElementById('pricingModel').value,
+				price: parseFloat(document.getElementById('price').value),
+				horizon: document.getElementById('horizon').value,
+				riskLevel: document.getElementById('riskLevel').value
+			};
+
+			// Validate form
+			if (!validateForm(formData)) {
+				return;
+			}
+
+			// Show loading
+			showLoading();
+
+			// Simulate API call delay
+			setTimeout(() => {
+				simulationData = generateSimulationData(formData);
+				displayResults();
+				hideLoading();
+			}, 3000);
+		}
+
+		function validateForm(data) {
+			const required = ['title', 'location', 'budget', 'category', 'age', 'gender', 'job', 'pricingModel', 'price', 'horizon', 'riskLevel'];
+			
+			for (let field of required) {
+				if (!data[field]) {
+					alert(`Please fill in the ${field} field.`);
+					return false;
+				}
+			}
+			
+			if (data.budget < 1000) {
+				alert('Initial budget must be at least $1,000.');
+				return false;
+			}
+			
+			return true;
+		}
+
+		function generateSimulationData(formData) {
+			// Monte Carlo simulation parameters
+			const baseRevenue = formData.price * 100; // Base monthly customers
+			const budget = formData.budget;
+			const riskMultiplier = getRiskMultiplier(formData.riskLevel);
+			
+			// Generate three business models
+			const models = {
+				lean: generateModel('lean', baseRevenue, budget, riskMultiplier, formData),
+				balanced: generateModel('balanced', baseRevenue, budget, riskMultiplier, formData),
+				aggressive: generateModel('aggressive', baseRevenue, budget, riskMultiplier, formData)
+			};
+
+			return {
+				formData,
+				models,
+				insights: generateInsights(formData, models)
+			};
+		}
+
+		function generateModel(type, baseRevenue, budget, riskMultiplier, formData) {
+			const multipliers = {
+				lean: { revenue: 0.6, growth: 0.8, risk: 0.5 },
+				balanced: { revenue: 1.0, growth: 1.0, risk: 1.0 },
+				aggressive: { revenue: 1.8, growth: 1.5, risk: 2.0 }
+			};
+
+			const mult = multipliers[type];
+			const monthlyRevenue = baseRevenue * mult.revenue * riskMultiplier;
+			const monthlyExpenses = budget * 0.15; // 15% of budget as monthly expenses
+			const monthlyProfit = monthlyRevenue - monthlyExpenses;
+			const customers = Math.floor(monthlyRevenue / formData.price);
+			const breakeven = Math.ceil(budget / monthlyProfit);
+
+			return {
+				monthlyRevenue: Math.round(monthlyRevenue),
+				monthlyProfit: Math.round(monthlyProfit),
+				customers: customers,
+				breakeven: breakeven,
+				growthRate: mult.growth * riskMultiplier,
+				riskLevel: mult.risk * riskMultiplier
+			};
+		}
+
+		function getRiskMultiplier(riskLevel) {
+			const multipliers = {
+				conservative: 0.7,
+				moderate: 1.0,
+				aggressive: 1.4
+			};
+			return multipliers[riskLevel] || 1.0;
+		}
+
+		function generateInsights(formData, models) {
+			return [
+				{
+					title: "Market Opportunity",
+					text: `Based on your target demographic (${formData.age} ${formData.gender} ${formData.job}) in ${formData.location}, the market shows strong potential for ${formData.category} businesses.`
+				},
+				{
+					title: "Pricing Strategy",
+					text: `Your current price point of $${formData.price} aligns well with the ${formData.pricingModel} model for your target market.`
+				},
+				{
+					title: "Risk Assessment",
+					text: `With a ${formData.riskLevel} risk tolerance and $${formData.budget} initial budget, the balanced model offers the best risk-reward ratio.`
+				}
+			];
+		}
+
+		function displayResults() {
+			// Update model metrics
+			updateModelMetrics('lean', simulationData.models.lean);
+			updateModelMetrics('balanced', simulationData.models.balanced);
+			updateModelMetrics('aggressive', simulationData.models.aggressive);
+
+			// Display insights
+			displayInsights(simulationData.insights);
+
+			// Show results section
+			document.getElementById('results-section').style.display = 'block';
+			document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+		}
+
+		function updateModelMetrics(modelType, modelData) {
+			document.getElementById(`${modelType}-revenue`).textContent = `$${modelData.monthlyRevenue.toLocaleString()}`;
+			document.getElementById(`${modelType}-profit`).textContent = `$${modelData.monthlyProfit.toLocaleString()}`;
+			document.getElementById(`${modelType}-customers`).textContent = modelData.customers.toLocaleString();
+			document.getElementById(`${modelType}-breakeven`).textContent = modelData.breakeven;
+		}
+
+		function displayInsights(insights) {
+			const container = document.getElementById('insights-container');
+			container.innerHTML = '';
+
+			insights.forEach(insight => {
+				const insightCard = document.createElement('div');
+				insightCard.className = 'insight-card';
+				insightCard.innerHTML = `
+					<div class="insight-title">${insight.title}</div>
+					<div class="insight-text">${insight.text}</div>
+				`;
+				container.appendChild(insightCard);
+			});
+		}
+
+		function updateSimulation() {
+			if (!simulationData) return;
+
+			// Recalculate based on current slider values
+			const newPrice = currentSliders.price;
+			const newMarketing = currentSliders.marketing;
+			const newMarket = currentSliders.market;
+			const newTimeline = currentSliders.timeline;
+
+			// Update insights based on slider changes
+			updateDynamicInsights(newPrice, newMarketing, newMarket, newTimeline);
+
+			// Recalculate model metrics
+			recalculateModels(newPrice, newMarketing, newMarket, newTimeline);
+		}
+
+		function updateDynamicInsights(price, marketing, market, timeline) {
+			const insights = [
+				{
+					title: "Pricing Impact",
+					text: `Increasing price to $${price} ${price > simulationData.formData.price ? 'reduces demand by 15% but increases profit margin by 25%' : 'increases demand by 20% but reduces profit margin by 15%'}.`
+				},
+				{
+					title: "Marketing Budget Effect",
+					text: `Setting marketing budget to ${marketing}% ${marketing > 15 ? 'accelerates customer acquisition by 3 months' : 'extends customer acquisition timeline by 2 months'}.`
+				},
+				{
+					title: "Market Size Analysis",
+					text: `Targeting ${market}% of the market ${market > 50 ? 'increases revenue ceiling by $15,000 but adds 3 new competitors' : 'reduces competition but limits growth potential'}.`
+				},
+				{
+					title: "Timeline Optimization",
+					text: `Extending timeline to ${timeline} months ${timeline > 12 ? 'improves success probability by 20%' : 'increases risk but enables faster iteration'}.`
+				}
+			];
+
+			displayInsights(insights);
+		}
+
+		function recalculateModels(price, marketing, market, timeline) {
+			// Recalculate based on new parameters
+			const priceMultiplier = price / simulationData.formData.price;
+			const marketingMultiplier = marketing / 15;
+			const marketMultiplier = market / 50;
+			const timelineMultiplier = timeline / 12;
+
+			// Update each model
+			['lean', 'balanced', 'aggressive'].forEach(modelType => {
+				const originalModel = simulationData.models[modelType];
+				const updatedModel = {
+					monthlyRevenue: Math.round(originalModel.monthlyRevenue * priceMultiplier * marketMultiplier),
+					monthlyProfit: Math.round(originalModel.monthlyProfit * priceMultiplier * marketMultiplier),
+					customers: Math.floor(originalModel.customers * marketMultiplier / priceMultiplier),
+					breakeven: Math.ceil(originalModel.breakeven / marketingMultiplier / timelineMultiplier)
+				};
+
+				updateModelMetrics(modelType, updatedModel);
+			});
+		}
+
+		function showLoading() {
+			document.getElementById('loading-section').classList.add('active');
+			document.getElementById('results-section').style.display = 'none';
+		}
+
+		function hideLoading() {
+			document.getElementById('loading-section').classList.remove('active');
+		}
+
+		// Initialize profile avatar
+		document.addEventListener('DOMContentLoaded', function() {
+			try {
+				const user = JSON.parse(localStorage.getItem('bp_user') || 'null');
+				if (user && user.photoURL) {
+					document.getElementById('header-avatar').src = user.photoURL;
+				}
+			} catch (e) {
+				console.log('No user data found');
+			}
+		});
+
+		// Location analysis functionality
+		document.addEventListener('DOMContentLoaded', function() {
+			const getLocationBtn = document.getElementById('get-location-btn');
+			const locationInput = document.getElementById('location');
+			const locationDetails = document.getElementById('location-details');
+			const locationAnalysisSection = document.getElementById('location-analysis-section');
+			const analyzeLocationBtn = document.getElementById('analyze-location-btn');
+			const analyzeLocationText = document.getElementById('analyze-location-text');
+			const analyzeLocationLoading = document.getElementById('analyze-location-loading');
+			const locationAnalysisResults = document.getElementById('location-analysis-results');
+			const locationSurvivalScore = document.getElementById('location-survival-score');
+			const locationInsights = document.getElementById('location-insights');
+			const locationRecommendations = document.getElementById('location-recommendations');
+
+			let currentLocationData = null;
+
+			// Get current location
+			if (getLocationBtn) {
+				getLocationBtn.addEventListener('click', async () => {
+					if (!navigator.geolocation) {
+						showLocationStatus('Geolocation not supported', 'error');
+						return;
+					}
+
+					showLocationStatus('Getting location...', 'loading');
+					getLocationBtn.disabled = true;
+
+					try {
+						const position = await new Promise((resolve, reject) => {
+							navigator.geolocation.getCurrentPosition(resolve, reject, {
+								enableHighAccuracy: true,
+								timeout: 10000,
+								maximumAge: 60000
+							});
+						});
+
+						const { latitude, longitude } = position.coords;
+						currentLocationData = { lat: latitude, lng: longitude };
+
+						// Get address from coordinates
+						const address = await getAddressFromCoords(latitude, longitude);
+						locationInput.value = address;
+						currentLocationData.address = address;
+
+						showLocationStatus(`📍 Location: ${address}`, 'success');
+						locationAnalysisSection.classList.remove('hidden');
+					} catch (error) {
+						console.error('Location error:', error);
+						showLocationStatus('Failed to get location', 'error');
+					} finally {
+						getLocationBtn.disabled = false;
+					}
+				});
+			}
+
+			// Show location status
+			function showLocationStatus(message, type) {
+				locationDetails.classList.remove('hidden');
+				locationDetails.textContent = message;
+				locationDetails.className = `mt-2 text-sm ${
+					type === 'success' ? 'text-green-600' :
+					type === 'error' ? 'text-red-600' :
+					type === 'loading' ? 'text-blue-600' :
+					'text-gray-600'
+				}`;
+			}
+
+			// Get address from coordinates using reverse geocoding
+			async function getAddressFromCoords(lat, lng) {
+				try {
+					// Using a free geocoding service
+					const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+					const data = await response.json();
+					
+					if (data.city && data.principalSubdivision) {
+						return `${data.city}, ${data.principalSubdivision}, ${data.countryName}`;
+					} else if (data.locality) {
+						return `${data.locality}, ${data.countryName}`;
+					} else {
+						return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+					}
+				} catch (error) {
+					console.error('Geocoding error:', error);
+					return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+				}
+			}
+
+			// Analyze location viability
+			if (analyzeLocationBtn) {
+				analyzeLocationBtn.addEventListener('click', async () => {
+					if (!currentLocationData) {
+						alert('Please get your location first or enter a location manually');
+						return;
+					}
+
+					analyzeLocationBtn.disabled = true;
+					analyzeLocationText.classList.add('hidden');
+					analyzeLocationLoading.classList.remove('hidden');
+
+					try {
+						// Collect business data from form
+						const businessData = {
+							title: document.getElementById('title').value,
+							description: document.getElementById('description').value,
+							category: document.getElementById('category').value,
+							budget: document.getElementById('budget').value,
+							age: document.getElementById('age').value,
+							gender: document.getElementById('gender').value,
+							price: document.getElementById('price').value,
+							pricingModel: document.getElementById('pricing-model').value,
+							valueProp: document.getElementById('value-prop').value
+						};
+
+						// Prepare location data
+						const locationData = {
+							...currentLocationData,
+							address: locationInput.value
+						};
+
+						console.log('Analyzing location with:', { businessData, locationData });
+
+						// Call AI service
+						if (window.AIService && window.AIService.analyzeLocationViability) {
+							const result = await window.AIService.analyzeLocationViability({
+								businessData,
+								locationData
+							});
+
+							displayLocationAnalysis(result);
+						} else {
+							throw new Error('AI service not available');
+						}
+					} catch (error) {
+						console.error('Location analysis failed:', error);
+						alert('Location analysis failed. Please try again.');
+					} finally {
+						analyzeLocationBtn.disabled = false;
+						analyzeLocationText.classList.remove('hidden');
+						analyzeLocationLoading.classList.add('hidden');
+					}
+				});
+			}
+
+			// Display location analysis results
+			function displayLocationAnalysis(result) {
+				locationAnalysisResults.classList.remove('hidden');
+
+				// Display survival score
+				const scoreColor = result.survivalScore >= 70 ? 'text-green-600' : 
+								  result.survivalScore >= 40 ? 'text-yellow-600' : 'text-red-600';
+				locationSurvivalScore.innerHTML = `
+					<div class="p-4 bg-white rounded-lg border">
+						<h4 class="font-bold text-lg mb-2">Survival Score: <span class="${scoreColor}">${result.survivalScore}/100</span></h4>
+						<div class="text-sm text-gray-600 mb-2">Viability: <span class="font-bold">${result.viability}</span></div>
+						<div class="text-sm">${result.summary}</div>
+					</div>
+				`;
+
+				// Display insights
+				locationInsights.innerHTML = `
+					<div class="p-4 bg-white rounded-lg border">
+						<h4 class="font-bold text-lg mb-3">Market Analysis</h4>
+						<div class="grid grid-cols-2 gap-4 mb-4">
+							<div class="text-sm">
+								<span class="font-bold">Demand:</span> ${result.marketAnalysis.demand}
+							</div>
+							<div class="text-sm">
+								<span class="font-bold">Competition:</span> ${result.marketAnalysis.competition}
+							</div>
+							<div class="text-sm">
+								<span class="font-bold">Accessibility:</span> ${result.marketAnalysis.accessibility}
+							</div>
+							<div class="text-sm">
+								<span class="font-bold">Economic Climate:</span> ${result.marketAnalysis.economicClimate}
+							</div>
+						</div>
+						<div class="text-sm">
+							<span class="font-bold">Key Factors:</span> ${result.keyFactors.join(', ')}
+						</div>
+					</div>
+				`;
+
+				// Display recommendations
+				locationRecommendations.innerHTML = `
+					<div class="p-4 bg-white rounded-lg border">
+						<h4 class="font-bold text-lg mb-3">Recommendations</h4>
+						<div class="space-y-2">
+							<div>
+								<span class="font-bold text-red-600">Risks:</span>
+								<ul class="text-sm ml-4">
+									${result.risks.map(risk => `<li>• ${risk}</li>`).join('')}
+								</ul>
+							</div>
+							<div>
+								<span class="font-bold text-green-600">Opportunities:</span>
+								<ul class="text-sm ml-4">
+									${result.opportunities.map(opp => `<li>• ${opp}</li>`).join('')}
+								</ul>
+							</div>
+							<div>
+								<span class="font-bold text-blue-600">Recommendations:</span>
+								<ul class="text-sm ml-4">
+									${result.recommendations.map(rec => `<li>• ${rec}</li>`).join('')}
+								</ul>
+							</div>
+							${result.alternativeLocations.length > 0 ? `
+								<div>
+									<span class="font-bold text-purple-600">Alternative Locations:</span>
+									<ul class="text-sm ml-4">
+										${result.alternativeLocations.map(loc => `<li>• ${loc}</li>`).join('')}
+									</ul>
+								</div>
+							` : ''}
+						</div>
+					</div>
+				`;
+			}
+		});
+
+		// Idea selection functionality
+		document.addEventListener('DOMContentLoaded', function() {
+			const toggle = document.getElementById('load-from-idea-toggle');
+			const ideaSelection = document.getElementById('idea-selection');
+			const ideaSelect = document.getElementById('idea-select');
+			const loadIdeaBtn = document.getElementById('load-idea-btn');
+			const loadStatus = document.getElementById('idea-load-status');
+
+			// Toggle idea selection visibility
+			if (toggle) {
+				toggle.addEventListener('change', function() {
+					if (this.checked) {
+						ideaSelection.classList.remove('hidden');
+						loadIdeas();
+					} else {
+						ideaSelection.classList.add('hidden');
+						loadStatus.classList.add('hidden');
+					}
+				});
+			}
+
+			// Load ideas from store
+			function loadIdeas() {
+				try {
+					const storeData = localStorage.getItem('bp_store_v1');
+					if (storeData) {
+						const store = JSON.parse(storeData);
+						const ideas = store.ideas?.items || [];
+						
+						// Clear existing options
+						ideaSelect.innerHTML = '<option value="">Select an idea to load...</option>';
+						
+						// Add ideas to select
+						ideas.forEach(idea => {
+							const option = document.createElement('option');
+							option.value = idea.id;
+							option.textContent = idea.name || 'Unnamed Idea';
+							ideaSelect.appendChild(option);
+						});
+						
+						if (ideas.length === 0) {
+							ideaSelect.innerHTML = '<option value="">No ideas found</option>';
+						}
+					} else {
+						ideaSelect.innerHTML = '<option value="">No ideas found</option>';
+					}
+				} catch (e) {
+					console.error('Error loading ideas:', e);
+					ideaSelect.innerHTML = '<option value="">Error loading ideas</option>';
+				}
+			}
+
+			// Enable/disable load button based on selection
+			if (ideaSelect) {
+				ideaSelect.addEventListener('change', function() {
+					loadIdeaBtn.disabled = !this.value;
+				});
+			}
+
+			// Load idea data into form
+			if (loadIdeaBtn) {
+				loadIdeaBtn.addEventListener('click', function() {
+					const selectedIdeaId = ideaSelect.value;
+					if (!selectedIdeaId) return;
+
+					loadStatus.classList.remove('hidden');
+					loadStatus.textContent = 'Loading idea data...';
+					loadStatus.className = 'mt-2 text-sm text-blue-600';
+
+					try {
+						const storeData = localStorage.getItem('bp_store_v1');
+						if (storeData) {
+							const store = JSON.parse(storeData);
+							const ideas = store.ideas?.items || [];
+							const wizard = store.wizard || {};
+							
+							// Find selected idea
+							const selectedIdea = ideas.find(idea => idea.id === selectedIdeaId);
+							if (selectedIdea) {
+								// Load basic information
+								document.getElementById('title').value = selectedIdea.name || '';
+								document.getElementById('description').value = wizard.description || '';
+								document.getElementById('location').value = wizard.location || '';
+								document.getElementById('budget').value = wizard.budget || '';
+								document.getElementById('category').value = wizard.category || '';
+
+								// Load target market
+								const persona = wizard.extended?.persona || {};
+								document.getElementById('age').value = persona.age || '';
+								document.getElementById('gender').value = persona.gender || '';
+								document.getElementById('income').value = persona.income || '';
+
+								// Load business model
+								document.getElementById('pains').value = wizard.extended?.pains || '';
+								document.getElementById('value-prop').value = wizard.extended?.valueProp || '';
+								
+								const pricing = wizard.extended?.pricing || {};
+								document.getElementById('price').value = pricing.price ? pricing.price.replace('$', '') : '';
+								document.getElementById('pricing-model').value = pricing.model || '';
+
+								// Load preferences
+								const preferences = wizard.preferences || {};
+								document.getElementById('risk-tolerance').value = preferences.risk || '';
+								document.getElementById('timeline').value = preferences.horizon || '';
+
+								loadStatus.textContent = '✅ Idea data loaded successfully!';
+								loadStatus.className = 'mt-2 text-sm text-green-600';
+							} else {
+								throw new Error('Idea not found');
+							}
+						} else {
+							throw new Error('No store data found');
+						}
+					} catch (error) {
+						console.error('Error loading idea data:', error);
+						loadStatus.textContent = `❌ Error loading idea data: ${error.message}`;
+						loadStatus.className = 'mt-2 text-sm text-red-600';
+					}
+				});
+			}
+		});
+	</script>
 </body>
 </html>
-
-

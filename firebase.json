@@ -2,6 +2,9 @@
 	"firestore": {
 		"indexes": "firestore.indexes.json"
 	},
+	"storage": {
+		"rules": "storage.rules"
+	},
 	"hosting": {
 		"public": ".",
 		"ignore": [
@@ -13,6 +16,9 @@
 	"emulators": {
 		"hosting": {
 			"port": 5173
+		},
+		"storage": {
+			"port": 9199
 		}
 	}
 }

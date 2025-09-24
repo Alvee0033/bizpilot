@@ -266,6 +266,49 @@
 		let finalText = '';
 		let rafUpdate = 0; let pendingValue = null;
 
+		// Populate form fields with existing data from Store
+		function populateWizardForm() {
+			const wizard = Store.get().wizard || {};
+			const extended = wizard.extended || {};
+			const persona = extended.persona || {};
+			const pricing = extended.pricing || {};
+
+			console.log('Populating wizard form with data:', { wizard, extended, persona, pricing });
+
+			// Basic fields
+			if (ideaTitle && wizard.title) ideaTitle.value = wizard.title;
+			if (ideaDesc && wizard.description) ideaDesc.value = wizard.description;
+			if (ideaLoc && wizard.location) ideaLoc.value = wizard.location;
+			if (category && wizard.category) category.value = wizard.category;
+			if (budget && typeof wizard.budget === 'number') {
+				budget.value = wizard.budget;
+				if (budgetValue) budgetValue.textContent = `$${wizard.budget.toLocaleString()}`;
+				// Update budget slider visual
+				const min = Number(budget.min)||0, max = Number(budget.max)||100;
+				const pct = Math.round(((wizard.budget-min)/(max-min))*100);
+				budget.style.background = `linear-gradient(90deg, var(--primary) 0%, var(--primary) ${pct}%, #ece7dd ${pct}%, #ece7dd 100%)`;
+			}
+
+			// Extended fields
+			if (personaAge && persona.age) personaAge.value = persona.age;
+			if (personaGender && persona.gender) personaGender.value = persona.gender;
+			if (personaJob && persona.job) personaJob.value = persona.job;
+			if (pains && extended.pains) pains.value = extended.pains;
+			if (valueProp && extended.valueProp) valueProp.value = extended.valueProp;
+			if (pricingModel && pricing.model) pricingModel.value = pricing.model;
+			if (pricingPrice && pricing.price) pricingPrice.value = pricing.price;
+		}
+
+		// Populate form on initialization
+		populateWizardForm();
+
+		// Listen for Store changes to repopulate form when data is loaded from Firebase
+		Store.subscribe((state) => {
+			if (state.wizard) {
+				populateWizardForm();
+			}
+		});
+
 		if (budget && budgetValue) {
 			budget.addEventListener('input', () => {
 				budgetValue.textContent = `$${Number(budget.value).toLocaleString()}`;
@@ -281,14 +324,51 @@
 		if (ideaLoc) ideaLoc.addEventListener('input', () => { Store.set({ wizard: { location: String(ideaLoc.value) } }); const user = Store.get().profile.user; if (window.DB && user && user.uid) window.DB.writeWizard(user.uid, Store.get().wizard); });
 		if (category) category.addEventListener('change', () => { Store.set({ wizard: { category: String(category.value) } }); const user = Store.get().profile.user; if (window.DB && user && user.uid) window.DB.writeWizard(user.uid, Store.get().wizard); });
 
-		// Extended listeners
-		if (personaAge) personaAge.addEventListener('input', () => Store.set({ wizard: { extended: { persona: { age: String(personaAge.value), gender: Store.get().wizard.extended.persona.gender, job: Store.get().wizard.extended.persona.job } } } }));
-		if (personaGender) personaGender.addEventListener('change', () => Store.set({ wizard: { extended: { persona: { age: Store.get().wizard.extended.persona.age, gender: String(personaGender.value), job: Store.get().wizard.extended.persona.job } } } }));
-		if (personaJob) personaJob.addEventListener('input', () => Store.set({ wizard: { extended: { persona: { age: Store.get().wizard.extended.persona.age, gender: Store.get().wizard.extended.persona.gender, job: String(personaJob.value) } } } }));
-		if (pains) pains.addEventListener('input', () => Store.set({ wizard: { extended: { pains: String(pains.value) } } }));
-		if (valueProp) valueProp.addEventListener('input', () => Store.set({ wizard: { extended: { valueProp: String(valueProp.value) } } }));
-		if (pricingModel) pricingModel.addEventListener('change', () => Store.set({ wizard: { extended: { pricing: { model: String(pricingModel.value), price: Store.get().wizard.extended.pricing.price } } } }));
-		if (pricingPrice) pricingPrice.addEventListener('input', () => Store.set({ wizard: { extended: { pricing: { model: Store.get().wizard.extended.pricing.model, price: String(pricingPrice.value) } } } }));
+		// Extended listeners - Save to both Store and Firebase
+		if (personaAge) personaAge.addEventListener('input', () => { 
+			Store.set({ wizard: { extended: { persona: { age: String(personaAge.value), gender: Store.get().wizard.extended.persona.gender, job: Store.get().wizard.extended.persona.job } } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) {
+				console.log('Saving persona age to Firebase:', String(personaAge.value));
+				window.DB.writeWizard(user.uid, Store.get().wizard);
+			}
+		});
+		if (personaGender) personaGender.addEventListener('change', () => { 
+			Store.set({ wizard: { extended: { persona: { age: Store.get().wizard.extended.persona.age, gender: String(personaGender.value), job: Store.get().wizard.extended.persona.job } } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) window.DB.writeWizard(user.uid, Store.get().wizard); 
+		});
+		if (personaJob) personaJob.addEventListener('input', () => { 
+			Store.set({ wizard: { extended: { persona: { age: Store.get().wizard.extended.persona.age, gender: Store.get().wizard.extended.persona.gender, job: String(personaJob.value) } } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) window.DB.writeWizard(user.uid, Store.get().wizard); 
+		});
+		if (pains) pains.addEventListener('input', () => { 
+			Store.set({ wizard: { extended: { pains: String(pains.value) } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) {
+				console.log('Saving pains to Firebase:', String(pains.value));
+				window.DB.writeWizard(user.uid, Store.get().wizard);
+			}
+		});
+		if (valueProp) valueProp.addEventListener('input', () => { 
+			Store.set({ wizard: { extended: { valueProp: String(valueProp.value) } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) {
+				console.log('Saving value proposition to Firebase:', String(valueProp.value));
+				window.DB.writeWizard(user.uid, Store.get().wizard);
+			}
+		});
+		if (pricingModel) pricingModel.addEventListener('change', () => { 
+			Store.set({ wizard: { extended: { pricing: { model: String(pricingModel.value), price: Store.get().wizard.extended.pricing.price } } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) window.DB.writeWizard(user.uid, Store.get().wizard); 
+		});
+		if (pricingPrice) pricingPrice.addEventListener('input', () => { 
+			Store.set({ wizard: { extended: { pricing: { model: Store.get().wizard.extended.pricing.model, price: String(pricingPrice.value) } } } }); 
+			const user = Store.get().profile.user; 
+			if (window.DB && user && user.uid) window.DB.writeWizard(user.uid, Store.get().wizard); 
+		});
 
 		if (imgUpload && imgPreview) {
 			imgUpload.addEventListener('change', async () => {
@@ -705,9 +785,9 @@
 						if (data && (data.photos || data.pdf || data.gps)) {
 							const st2 = Store.get();
 							const wizard = Object.assign({}, st2.wizard || {});
-							// Merge URLs as pseudo-uploads for AI prompt
-							wizard.images = (data.photos || []).map(p => ({ name: p.name || 'photo', data: String(p.url) }));
-							wizard.pdf = data.pdf ? { name: data.pdf.name || 'document.pdf', data: String(data.pdf.url) } : wizard.pdf || null;
+                            // Merge inline data (prefer data field; fallback to url)
+                            wizard.images = (data.photos || []).map(p => ({ name: p.name || 'photo', data: String(p.data || p.url || '') }));
+                            wizard.pdf = data.pdf ? { name: data.pdf.name || 'document.pdf', data: String((data.pdf && data.pdf.data) || (data.pdf && data.pdf.url) || '') } : wizard.pdf || null;
 							const analyses = Object.assign({}, st2.analysisByIdea || {});
 							analyses[ideaId] = { loading: true };
 							Store.set({ analysisByIdea: analyses });
@@ -786,10 +866,10 @@
 					const ideaNow = (stNow.ideas && stNow.ideas.items || []).find(i => i.id === ideaId);
 					const data = (Store.get().profile.user && window.DB && window.DB.readIdea) ? await window.DB.readIdea(Store.get().profile.user.uid, ideaId).catch(()=>null) : null;
 					const wizardForCompare = Object.assign({}, stNow.wizard || {});
-					if (data && (data.photos || data.pdf)) {
-						wizardForCompare.images = (data.photos || []).map(p => ({ name: p.name||'photo', data: String(p.url) }));
-						wizardForCompare.pdf = data.pdf ? { name: data.pdf.name||'document.pdf', data: String(data.pdf.url) } : null;
-					}
+                    if (data && (data.photos || data.pdf)) {
+                        wizardForCompare.images = (data.photos || []).map(p => ({ name: p.name||'photo', data: String(p.data || p.url || '') }));
+                        wizardForCompare.pdf = data.pdf ? { name: data.pdf.name||'document.pdf', data: String((data.pdf && data.pdf.data) || (data.pdf && data.pdf.url) || '') } : null;
+                    }
 					const cmp = await window.AIService.compareModels({ ideaName: (ideaNow && ideaNow.name) || ideaName, models, wizard: wizardForCompare, gps: data && data.gps || null });
 					const box = document.createElement('div');
 					box.className = 'mt-3 border border-[color:var(--muted)] rounded p-2 text-sm';
@@ -883,13 +963,38 @@
 				const user = st.profile && st.profile.user;
 				const ideaId = st.ideas && st.ideas.selectedId;
 				if (!user || !user.uid || !ideaId || !window.DB || !window.DB.saveIdeaAssetsFromWizard) return;
+				
 				// Skip if already have photos/pdf/gps saved on idea
 				const existing = await window.DB.readIdea(user.uid, ideaId).catch(() => null);
 				const hasAny = existing && (Array.isArray(existing.photos) && existing.photos.length || existing.pdf || existing.gps);
 				if (hasAny) return;
+				
+				// Only try to save if we have actual assets to save
+				const wizard = st.wizard || {};
+				const hasAssets = (wizard.images && wizard.images.length > 0) || wizard.pdf;
+				if (!hasAssets) return;
+				
+				// Clean wizard data to remove undefined values
+				const cleanWizard = {
+					title: wizard.title || '',
+					description: wizard.description || '',
+					location: wizard.location || '',
+					budget: wizard.budget || 0,
+					category: wizard.category || '',
+					preferences: wizard.preferences || { horizon: '6m', risk: 'conservative' },
+					extended: wizard.extended || {},
+					images: (wizard.images || []).filter(img => img && img.data),
+					pdf: wizard.pdf && wizard.pdf.data ? wizard.pdf : null
+				};
+				
 				const gps = await fetchGps();
-				await window.DB.saveIdeaAssetsFromWizard(user.uid, ideaId, st.wizard || {}, gps || null);
-			} catch {}
+				const cleanGps = gps && gps.lat && gps.lng ? { lat: gps.lat, lng: gps.lng, accuracy: gps.accuracy || 0 } : null;
+				
+				await window.DB.saveIdeaAssetsFromWizard(user.uid, ideaId, cleanWizard, cleanGps);
+			} catch (error) {
+				console.log('Could not persist assets to Firebase (this is normal in development):', error.message);
+				// Don't throw - this is expected in development without proper Firebase setup
+			}
 		})();
 
 		// Profile handlers

@@ -113,6 +113,36 @@
                                     </div>
                                 </div>
                                 <div id="tab-analytics" class="mt-2">
+                                    <!-- Data Upload Section -->
+                                    <div class="border border-[color:var(--muted)] rounded-lg p-4 mb-4 bg-gradient-to-r from-[color:var(--primaryLightest)] to-white">
+                                        <h4 class="font-bold mb-3 flex items-center">
+                                            <svg class="w-5 h-5 mr-2 text-[color:var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Upload Financial Data
+                                        </h4>
+                                        <p class="text-sm text-[color:var(--ink-60)] mb-3">Upload Excel (.xlsx) or CSV files to generate AI-powered financial projections and charts.</p>
+                                        
+                                        <div class="flex flex-col sm:flex-row gap-3">
+                                            <div class="flex-1">
+                                                <input type="file" id="data-upload" accept=".xlsx,.xls,.csv" class="w-full px-3 py-2 border border-[color:var(--muted)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]">
+                                            </div>
+                                            <button id="test-data-btn" class="px-3 py-2 border border-[color:var(--muted)] text-sm font-bold rounded-lg hover:bg-[color:var(--primaryLightest)] transition-colors">
+                                                Test Data
+                                            </button>
+                                            <button id="debug-data-btn" class="px-3 py-2 border border-[color:var(--muted)] text-sm font-bold rounded-lg hover:bg-[color:var(--primaryLightest)] transition-colors disabled:opacity-50" disabled>
+                                                Debug
+                                            </button>
+                                            <button id="analyze-data-btn" class="px-4 py-2 bg-[color:var(--primary)] text-white font-bold rounded-lg hover:bg-[color:var(--accent)] transition-colors disabled:opacity-50" disabled>
+                                                <span id="analyze-data-text">Analyze Data</span>
+                                                <span id="analyze-data-loading" class="hidden">Analyzing...</span>
+                                            </button>
+                                        </div>
+                                        
+                                        <div id="upload-status" class="mt-2 text-sm hidden"></div>
+                                    </div>
+                                    
+                                    <!-- Charts Section -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="border border-[color:var(--muted)] rounded-lg p-3">
                                             <h4 class="font-bold mb-2">Revenue Forecast</h4>
@@ -129,6 +159,14 @@
                                         <div class="border border-[color:var(--muted)] rounded-lg p-3">
                                             <h4 class="font-bold mb-2">KPI Radar</h4>
                                             <canvas id="chart-kpi" height="140"></canvas>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- AI Analysis Results -->
+                                    <div id="ai-analysis-results" class="mt-4 hidden">
+                                        <div class="border border-[color:var(--primary)] rounded-lg p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                                            <h4 class="font-bold text-blue-900 mb-2">🤖 AI Financial Analysis</h4>
+                                            <div id="ai-insights" class="text-sm text-blue-800"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -173,6 +211,8 @@
 	<script src="./services/aiService.js"></script>
 	<script src="./app.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 	<script>
 (function(){
         const tabs = document.querySelectorAll('[data-tab]');
@@ -189,10 +229,13 @@
         // Default to analytics on load
         showTab('analytics');
 
-		// Mock charts
+		// Initialize charts variable first
+		let charts = {};
+
+		// Initialize charts with mock data (will be updated with real data)
 		const revEl = document.getElementById('chart-revenue');
 		if (revEl && window.Chart) {
-			new Chart(revEl.getContext('2d'), {
+			charts.revenue = new Chart(revEl.getContext('2d'), {
 				type: 'line',
 				data: { labels: ['M1','M2','M3','M4','M5','M6'], datasets: [{ label: 'Revenue', data: [500, 1200, 2200, 3500, 4700, 6500], borderColor: '#171208', backgroundColor: 'rgba(23,18,8,0.1)', tension: .3 }] },
 				options: { responsive: true, plugins: { legend: { display: false } } }
@@ -200,7 +243,7 @@
 		}
 		const costEl = document.getElementById('chart-costs');
 		if (costEl && window.Chart) {
-			new Chart(costEl.getContext('2d'), {
+			charts.costs = new Chart(costEl.getContext('2d'), {
 				type: 'doughnut',
 				data: { labels: ['COGS','Marketing','Ops'], datasets: [{ data: [45, 30, 25], backgroundColor: ['#EAB84E','#D01B22','#171208'] }] },
 				options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
@@ -208,7 +251,7 @@
 		}
 		const cacEl = document.getElementById('chart-cacltv');
 		if (cacEl && window.Chart) {
-			new Chart(cacEl.getContext('2d'), {
+			charts.cacltv = new Chart(cacEl.getContext('2d'), {
 				type: 'bar',
 				data: { labels: ['Q1','Q2','Q3','Q4'], datasets: [
 					{ label: 'CAC', data: [12, 10, 9, 8], backgroundColor: 'rgba(208,27,34,0.6)' },
@@ -219,7 +262,7 @@
 		}
 		const kpiEl = document.getElementById('chart-kpi');
 		if (kpiEl && window.Chart) {
-			new Chart(kpiEl.getContext('2d'), {
+			charts.kpi = new Chart(kpiEl.getContext('2d'), {
 				type: 'radar',
 				data: { labels: ['Growth','Retention','Margin','Reach','Satisfaction'], datasets: [
 					{ label: 'Target', data: [80,80,70,75,85], borderColor: '#171208', backgroundColor: 'rgba(23,18,8,0.1)' },
@@ -262,6 +305,442 @@
 				try { cb.checked = localStorage.getItem(key)==='1'; } catch {}
 				cb.addEventListener('change',()=>{ try { localStorage.setItem(key, cb.checked?'1':'0'); } catch {} });
 			});
+		}
+
+		// File upload and analysis functionality
+		const dataUpload = document.getElementById('data-upload');
+		const analyzeDataBtn = document.getElementById('analyze-data-btn');
+		const analyzeDataText = document.getElementById('analyze-data-text');
+		const analyzeDataLoading = document.getElementById('analyze-data-loading');
+		const debugDataBtn = document.getElementById('debug-data-btn');
+		const testDataBtn = document.getElementById('test-data-btn');
+		const uploadStatus = document.getElementById('upload-status');
+		const aiAnalysisResults = document.getElementById('ai-analysis-results');
+		const aiInsights = document.getElementById('ai-insights');
+		
+		let uploadedData = null;
+
+		// File upload handler
+		if (dataUpload) {
+			dataUpload.addEventListener('change', async (e) => {
+				const file = e.target.files[0];
+				if (!file) return;
+
+				uploadStatus.classList.remove('hidden');
+				uploadStatus.textContent = 'Processing file...';
+				uploadStatus.className = 'mt-2 text-sm text-blue-600';
+
+				try {
+					const data = await parseFile(file);
+					uploadedData = data;
+					analyzeDataBtn.disabled = false;
+					debugDataBtn.disabled = false;
+					uploadStatus.textContent = `✅ File processed: ${data.rows.length} rows, ${data.columns.length} columns`;
+					uploadStatus.className = 'mt-2 text-sm text-green-600';
+				} catch (error) {
+					uploadStatus.textContent = `❌ Error processing file: ${error.message}`;
+					uploadStatus.className = 'mt-2 text-sm text-red-600';
+					analyzeDataBtn.disabled = true;
+					debugDataBtn.disabled = true;
+				}
+			});
+		}
+
+		// Test data button handler
+		if (testDataBtn) {
+			testDataBtn.addEventListener('click', () => {
+				// Create sample financial data
+				const sampleData = {
+					rows: [
+						{ Month: 'Jan', Revenue: 5000, Costs: 3000, Customers: 50, CAC: 60 },
+						{ Month: 'Feb', Revenue: 7500, Costs: 4000, Customers: 75, CAC: 53 },
+						{ Month: 'Mar', Revenue: 12000, Costs: 5500, Customers: 120, CAC: 46 },
+						{ Month: 'Apr', Revenue: 18000, Costs: 7000, Customers: 180, CAC: 39 },
+						{ Month: 'May', Revenue: 25000, Costs: 8500, Customers: 250, CAC: 34 },
+						{ Month: 'Jun', Revenue: 32000, Costs: 10000, Customers: 320, CAC: 31 }
+					],
+					columns: ['Month', 'Revenue', 'Costs', 'Customers', 'CAC'],
+					type: 'test',
+					plainText: `Financial Data Analysis
+Columns: Month, Revenue, Costs, Customers, CAC
+
+Header: Month	Revenue	Costs	Customers	CAC
+Row 1: Jan	5000	3000	50	60
+Row 2: Feb	7500	4000	75	53
+Row 3: Mar	12000	5500	120	46
+Row 4: Apr	18000	7000	180	39
+Row 5: May	25000	8500	250	34
+Row 6: Jun	32000	10000	320	31
+
+Summary:
+Total rows: 6
+Total columns: 5
+Numeric columns: Revenue, Costs, Customers, CAC
+Revenue: Min=5000, Max=32000, Avg=17083.33, Count=6
+Costs: Min=3000, Max=10000, Avg=6333.33, Count=6
+Customers: Min=50, Max=320, Avg=165.83, Count=6
+CAC: Min=31, Max=60, Avg=43.83, Count=6`
+				};
+
+				uploadedData = sampleData;
+				analyzeDataBtn.disabled = false;
+				debugDataBtn.disabled = false;
+				uploadStatus.classList.remove('hidden');
+				uploadStatus.textContent = '✅ Test data loaded: 6 months of financial data';
+				uploadStatus.className = 'mt-2 text-sm text-green-600';
+			});
+		}
+
+		// Debug data button handler
+		if (debugDataBtn) {
+			debugDataBtn.addEventListener('click', () => {
+				if (!uploadedData) return;
+				
+				const debugInfo = {
+					fileName: dataUpload.files[0]?.name || 'Unknown',
+					fileType: uploadedData.type,
+					rows: uploadedData.rows.length,
+					columns: uploadedData.columns,
+					plainText: uploadedData.plainText,
+					sampleData: uploadedData.rows.slice(0, 3)
+				};
+				
+				const debugHtml = `
+					<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="debug-modal">
+						<div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+							<div class="flex items-center justify-between mb-4">
+								<h3 class="text-xl font-bold text-[color:var(--ink)]">Data Debug Information</h3>
+								<button class="text-gray-500 hover:text-gray-700" onclick="closeDebugModal()">
+									<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+									</svg>
+								</button>
+							</div>
+							
+							<div class="space-y-4">
+								<div class="grid grid-cols-2 gap-4 text-sm">
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<div class="font-bold">File Info</div>
+										<div>Name: ${debugInfo.fileName}</div>
+										<div>Type: ${debugInfo.fileType}</div>
+										<div>Rows: ${debugInfo.rows}</div>
+										<div>Columns: ${debugInfo.columns.length}</div>
+									</div>
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<div class="font-bold">Columns</div>
+										<div>${debugInfo.columns.join(', ')}</div>
+									</div>
+								</div>
+								
+								<div class="p-3 bg-blue-50 rounded-lg">
+									<div class="font-bold mb-2">Sample Data (First 3 Rows)</div>
+									<pre class="text-xs overflow-auto max-h-40 bg-white p-2 rounded border">${JSON.stringify(debugInfo.sampleData, null, 2)}</pre>
+								</div>
+								
+								<div class="p-3 bg-green-50 rounded-lg">
+									<div class="font-bold mb-2">Plain Text Format (Sent to AI)</div>
+									<pre class="text-xs overflow-auto max-h-60 bg-white p-2 rounded border">${debugInfo.plainText}</pre>
+								</div>
+							</div>
+							
+							<div class="mt-6 flex gap-2">
+								<button class="flex-1 px-4 py-2 bg-[color:var(--primary)] text-white rounded-lg font-bold hover:bg-[color:var(--accent)] transition-colors" onclick="closeDebugModal()">
+									Close
+								</button>
+							</div>
+						</div>
+					</div>
+				`;
+				
+				// Remove existing modal if any
+				const existingModal = document.getElementById('debug-modal');
+				if (existingModal) {
+					existingModal.remove();
+				}
+				
+				// Add new modal
+				document.body.insertAdjacentHTML('beforeend', debugHtml);
+			});
+		}
+
+		// Close debug modal function
+		window.closeDebugModal = function() {
+			const modal = document.getElementById('debug-modal');
+			if (modal) {
+				modal.remove();
+			}
+		};
+
+		// Analyze data button handler
+		if (analyzeDataBtn) {
+			analyzeDataBtn.addEventListener('click', async () => {
+				if (!uploadedData) return;
+
+				analyzeDataBtn.disabled = true;
+				analyzeDataText.classList.add('hidden');
+				analyzeDataLoading.classList.remove('hidden');
+
+				try {
+					// Get current idea context
+					const state = window.Store ? window.Store.get() : null;
+					const selectedId = state && state.ideas ? state.ideas.selectedId : null;
+					const idea = selectedId && state.ideas.items ? state.ideas.items.find(i => i.id === selectedId) : null;
+					const ideaName = idea ? idea.name : 'Business';
+
+					// Prepare comprehensive idea data for AI
+					const ideaData = {
+						name: ideaName,
+						description: state?.wizard?.description || '',
+						location: state?.wizard?.location || '',
+						budget: state?.wizard?.budget || 0,
+						category: state?.wizard?.category || '',
+						persona: state?.wizard?.extended?.persona || {},
+						pains: state?.wizard?.extended?.pains || '',
+						valueProp: state?.wizard?.extended?.valueProp || '',
+						pricing: state?.wizard?.extended?.pricing || {},
+						preferences: state?.wizard?.preferences || {}
+					};
+
+					console.log('Starting analysis with:', {
+						ideaName,
+						dataRows: uploadedData.rows.length,
+						dataColumns: uploadedData.columns,
+						ideaData: ideaData,
+						hasContext: !!state?.wizard
+					});
+
+					// Call AI service to analyze financial data
+					if (window.AIService && window.AIService.analyzeFinancialData) {
+						console.log('Calling AI service with comprehensive data...');
+						const result = await window.AIService.analyzeFinancialData({
+							ideaName: ideaName,
+							data: uploadedData,
+							context: ideaData
+						});
+
+						console.log('AI analysis result:', result);
+
+						// Validate result structure
+						if (result && result.chartData) {
+							// Update charts with real data
+							updateChartsWithRealData(result);
+							
+							// Show AI insights
+							displayAIInsights(result);
+							
+							uploadStatus.textContent = '✅ Analysis complete! Charts updated with real data.';
+							uploadStatus.className = 'mt-2 text-sm text-green-600';
+						} else {
+							throw new Error('Invalid AI response structure');
+						}
+					} else {
+						throw new Error('AI service not available - check if aiService.js is loaded');
+					}
+				} catch (error) {
+					console.error('Analysis failed:', error);
+					uploadStatus.textContent = `❌ Analysis failed: ${error.message}`;
+					uploadStatus.className = 'mt-2 text-sm text-red-600';
+					
+					// Show fallback charts with sample data
+					showFallbackCharts();
+				} finally {
+					analyzeDataBtn.disabled = false;
+					analyzeDataText.classList.remove('hidden');
+					analyzeDataLoading.classList.add('hidden');
+				}
+			});
+		}
+
+		// Parse uploaded file (CSV or Excel) and convert to plain text
+		async function parseFile(file) {
+			const fileType = file.name.split('.').pop().toLowerCase();
+			
+			if (fileType === 'csv') {
+				return new Promise((resolve, reject) => {
+					Papa.parse(file, {
+						header: true,
+						skipEmptyLines: true,
+						complete: (results) => {
+							if (results.errors.length > 0) {
+								reject(new Error(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`));
+							} else {
+								const plainText = convertToPlainText(results.data, results.meta.fields || []);
+								resolve({
+									rows: results.data,
+									columns: results.meta.fields || [],
+									type: 'csv',
+									plainText: plainText
+								});
+							}
+						},
+						error: (error) => reject(error)
+					});
+				});
+			} else if (['xlsx', 'xls'].includes(fileType)) {
+				return new Promise((resolve, reject) => {
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						try {
+							const data = new Uint8Array(e.target.result);
+							const workbook = XLSX.read(data, { type: 'array' });
+							const sheetName = workbook.SheetNames[0];
+							const worksheet = workbook.Sheets[sheetName];
+							const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+							
+							if (jsonData.length < 2) {
+								reject(new Error('Excel file must have at least 2 rows (header + data)'));
+								return;
+							}
+							
+							const headers = jsonData[0];
+							const rows = jsonData.slice(1).map(row => {
+								const obj = {};
+								headers.forEach((header, index) => {
+									obj[header] = row[index] || '';
+								});
+								return obj;
+							});
+							
+							const plainText = convertToPlainText(rows, headers);
+							
+							resolve({
+								rows: rows,
+								columns: headers,
+								type: 'excel',
+								plainText: plainText
+							});
+						} catch (error) {
+							reject(error);
+						}
+					};
+					reader.onerror = () => reject(new Error('Failed to read file'));
+					reader.readAsArrayBuffer(file);
+				});
+			} else {
+				throw new Error('Unsupported file type. Please upload CSV or Excel files.');
+			}
+		}
+
+		// Convert data to plain text format for AI processing
+		function convertToPlainText(rows, columns) {
+			let text = `Financial Data Analysis\n`;
+			text += `Columns: ${columns.join(', ')}\n\n`;
+			
+			// Add header row
+			text += `Header: ${columns.join('\t')}\n`;
+			
+			// Add data rows (limit to first 20 rows for AI processing)
+			const maxRows = Math.min(rows.length, 20);
+			for (let i = 0; i < maxRows; i++) {
+				const row = rows[i];
+				const values = columns.map(col => {
+					const value = row[col];
+					return value !== null && value !== undefined ? String(value) : '';
+				});
+				text += `Row ${i + 1}: ${values.join('\t')}\n`;
+			}
+			
+			if (rows.length > 20) {
+				text += `\n... and ${rows.length - 20} more rows\n`;
+			}
+			
+			// Add summary statistics
+			text += `\nSummary:\n`;
+			text += `Total rows: ${rows.length}\n`;
+			text += `Total columns: ${columns.length}\n`;
+			
+			// Add numeric column analysis
+			const numericColumns = columns.filter(col => {
+				const sampleValue = rows[0] && rows[0][col];
+				return !isNaN(parseFloat(sampleValue)) && isFinite(sampleValue);
+			});
+			
+			if (numericColumns.length > 0) {
+				text += `Numeric columns: ${numericColumns.join(', ')}\n`;
+				
+				// Add basic stats for numeric columns
+				numericColumns.forEach(col => {
+					const values = rows.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+					if (values.length > 0) {
+						const sum = values.reduce((a, b) => a + b, 0);
+						const avg = sum / values.length;
+						const min = Math.min(...values);
+						const max = Math.max(...values);
+						text += `${col}: Min=${min}, Max=${max}, Avg=${avg.toFixed(2)}, Count=${values.length}\n`;
+					}
+				});
+			}
+			
+			return text;
+		}
+
+		// Update charts with real data from AI analysis
+		function updateChartsWithRealData(analysisResult) {
+			console.log('Updating charts with AI result:', analysisResult);
+			const chartData = analysisResult.chartData || {};
+			
+			// Update Revenue Forecast Chart
+			if (chartData.revenue && charts.revenue) {
+				charts.revenue.data.labels = chartData.revenue.labels || ['Q1', 'Q2', 'Q3', 'Q4'];
+				charts.revenue.data.datasets[0].data = chartData.revenue.data || [0, 0, 0, 0];
+				charts.revenue.update('active');
+				console.log('Updated revenue chart:', chartData.revenue);
+			}
+			
+			// Update Cost Breakdown Chart
+			if (chartData.costs && charts.costs) {
+				charts.costs.data.labels = chartData.costs.labels || ['COGS', 'Marketing', 'Ops'];
+				charts.costs.data.datasets[0].data = chartData.costs.data || [0, 0, 0];
+				charts.costs.update('active');
+				console.log('Updated costs chart:', chartData.costs);
+			}
+			
+			// Update CAC vs LTV Chart
+			if (chartData.cacltv && charts.cacltv) {
+				charts.cacltv.data.labels = chartData.cacltv.labels || ['Q1', 'Q2', 'Q3', 'Q4'];
+				charts.cacltv.data.datasets[0].data = chartData.cacltv.cac || [0, 0, 0, 0];
+				charts.cacltv.data.datasets[1].data = chartData.cacltv.ltv || [0, 0, 0, 0];
+				charts.cacltv.update('active');
+				console.log('Updated CAC/LTV chart:', chartData.cacltv);
+			}
+			
+			// Update KPI Radar Chart
+			if (chartData.kpi && charts.kpi) {
+				charts.kpi.data.labels = chartData.kpi.labels || ['Growth', 'Retention', 'Margin', 'Reach', 'Satisfaction'];
+				charts.kpi.data.datasets[0].data = chartData.kpi.target || [0, 0, 0, 0, 0];
+				charts.kpi.data.datasets[1].data = chartData.kpi.current || [0, 0, 0, 0, 0];
+				charts.kpi.update('active');
+				console.log('Updated KPI chart:', chartData.kpi);
+			}
+		}
+
+		// Display AI insights
+		function displayAIInsights(analysisResult) {
+			if (analysisResult.insights) {
+				aiInsights.innerHTML = `
+					<div class="space-y-2">
+						${analysisResult.insights.map(insight => `<div>• ${insight}</div>`).join('')}
+					</div>
+				`;
+				aiAnalysisResults.classList.remove('hidden');
+			}
+		}
+
+		// Show fallback charts with sample data
+		function showFallbackCharts() {
+			console.log('Showing fallback charts');
+			const fallbackData = {
+				chartData: {
+					revenue: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], data: [1000, 1500, 2000, 2500] },
+					costs: { labels: ['COGS', 'Marketing', 'Operations'], data: [45, 30, 25] },
+					cacltv: { labels: ['Q1', 'Q2', 'Q3', 'Q4'], cac: [50, 45, 40, 35], ltv: [200, 220, 250, 280] },
+					kpi: { labels: ['Growth', 'Retention', 'Margin', 'Reach', 'Satisfaction'], target: [80, 85, 70, 75, 90], current: [60, 70, 55, 65, 80] }
+				},
+				insights: ['Using fallback data due to analysis error', 'Please check your data format and try again']
+			};
+			
+			updateChartsWithRealData(fallbackData);
+			displayAIInsights(fallbackData);
 		}
 	})();
 	</script>

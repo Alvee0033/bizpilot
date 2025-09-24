@@ -3,82 +3,836 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Models - BizPilot</title>
+	<title>Business Models - BizPilot</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script>
-		tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
+		tailwind.config = { 
+			theme: { 
+				extend: { 
+					colors: { 
+						accent: '#D01B22', 
+						primary: '#EAB84E', 
+						primaryLight: '#F2D495', 
+						primaryLightest: '#FFFCEE', 
+						ink: '#171208' 
+					} 
+				} 
+			} 
+		};
 	</script>
 	<link rel="stylesheet" href="./styles.css">
-	<link rel="icon" href="./assets/logo.png">
+	<link rel="icon" href="./assets/logo.svg">
 </head>
-<body>
-	<script>
-		try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }
-	</script>
-
-	<header class="app-header">
-		<div class="container header-inner">
-			<div class="brand">
-				<img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
-				<div class="brand-text">
-					<strong>BizPilot</strong>
-					<span>AI Business Assistant</span>
+<body class="bg-gray-50 min-h-screen">
+	<!-- Header -->
+	<header class="bg-white shadow-sm border-b border-gray-200">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex justify-between items-center h-16">
+				<div class="flex items-center">
+					<img src="./assets/logo.svg" alt="BizPilot" class="h-8 w-8 mr-3" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3Crect width=\'32\' height=\'32\' rx=\'8\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'12\'%3EBP%3C/text%3E%3C/svg%3E'">
+					<div>
+						<h1 class="text-xl font-bold text-gray-900">BizPilot</h1>
+						<p class="text-sm text-gray-500">AI Business Assistant</p>
+					</div>
 				</div>
+				<nav class="flex space-x-8">
+					<a href="./dashboard.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+					<a href="./models.html" class="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium bg-blue-50 rounded-lg">Models</a>
+					<a href="./compare.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Compare</a>
+					<a href="./tasks.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Tasks</a>
+					<a href="./simulations.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Simulations</a>
+				</nav>
 			</div>
-			<nav class="main-nav items-center">
-				<a href="./dashboard.html" class="nav-link">Dashboard</a>
-				<a href="./models.html" class="nav-link">Models</a>
-				<a href="./compare.html" class="nav-link">Compare</a>
-				<a href="./tasks.html" class="nav-link">Tasks</a>
-				<a href="./simulations.html" class="nav-link">Simulations</a>
-				<a href="./automations.html" class="nav-link">Automations</a>
-				<div class="relative ml-2">
-					<button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
-						<img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
-					</button>
-				</div>
-			</nav>
 		</div>
 	</header>
 
-	<main>
-		<section class="view active" id="view-dashboard">
-			<div class="container">
-				<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-					<aside class="lg:col-span-1 bg-white border border-[color:var(--muted)] rounded-xl p-4 shadow-sm sticky top-20">
-						<div class="flex items-center justify-between mb-3">
-							<h3 class="text-lg font-extrabold text-[color:var(--ink)]">Your Ideas</h3>
-							<button id="new-idea" class="px-3 py-1 rounded-md bg-[color:var(--accent)] text-white text-sm font-bold">+ New</button>
-						</div>
-						<div class="relative">
-							<input id="idea-search" type="text" placeholder="Search ideas" class="w-full border border-[color:var(--muted)] rounded-lg py-2 pl-3 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)]" />
-						</div>
-						<ul id="idea-list" class="mt-3 space-y-2"></ul>
-					</aside>
+	<!-- Main Content -->
+	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<!-- Page Header -->
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold text-gray-900 mb-2">Business Model Analysis</h1>
+			<p class="text-gray-600">Get AI-powered business model recommendations tailored to your idea</p>
+		</div>
 
-					<section class="lg:col-span-3 bg-white border border-[color:var(--muted)] rounded-xl p-4 shadow-sm">
-						<div class="flex items-center justify-between">
-							<h2 id="workspace-title" class="text-2xl font-extrabold">Models</h2>
-						</div>
-						<div class="mt-4">
-							<div id="tab-models" class="mt-2 grid grid-cols-1 gap-3">
-								<div class="border border-[color:var(--muted)] rounded-lg p-3">
-									<h4 class="font-bold mb-1">Models overview</h4>
-									<p class="text-sm text-[color:var(--ink-60)]">Select an idea to see model summaries, canvases, and notes.</p>
-								</div>
-								<div id="models-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
-							</div>
-						</div>
-					</section>
+		<!-- Idea Selection Card -->
+		<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+			<div class="flex items-center justify-between mb-6">
+				<div class="flex items-center space-x-3">
+					<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+						<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+						</svg>
+					</div>
+					<div>
+						<h2 class="text-xl font-semibold text-gray-900">Select Your Business Idea</h2>
+						<p class="text-gray-600">Choose an idea to analyze and get model recommendations</p>
+					</div>
+				</div>
+				<div class="flex space-x-2">
+					<button id="refresh-ideas-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+						<svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+						</svg>
+						Refresh
+					</button>
+					<button id="debug-ideas-btn" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+						<svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+						</svg>
+						Debug
+					</button>
 				</div>
 			</div>
-		</section>
+
+			<!-- Idea Selection -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Choose an idea:</label>
+					<select id="idea-select" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+						<option value="">Select an idea to analyze...</option>
+					</select>
+				</div>
+				<div class="flex items-end">
+					<button id="load-idea-btn" class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+						Load Idea Data
+					</button>
+				</div>
+			</div>
+
+			<!-- Current Idea Display -->
+			<div id="current-idea-display" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden">
+				<div class="flex items-center justify-between">
+					<div>
+						<h3 class="font-semibold text-gray-900" id="current-idea-name">No idea selected</h3>
+						<p class="text-sm text-gray-600" id="current-idea-details">Select an idea to see details</p>
+					</div>
+					<button id="generate-models-btn" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+						<span id="generate-text">Generate Models</span>
+						<span id="generate-loading" class="hidden">Generating...</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Status Messages -->
+			<div id="status-messages" class="mt-4"></div>
+		</div>
+
+		<!-- Analysis Results -->
+		<div id="analysis-results" class="hidden">
+			<!-- AI Recommendation -->
+			<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 mb-8">
+				<div class="flex items-center space-x-3 mb-4">
+					<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+						<svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+						</svg>
+					</div>
+					<h2 class="text-xl font-semibold text-blue-900">AI Recommendation</h2>
+				</div>
+				<div id="ai-recommendation" class="text-blue-800"></div>
+			</div>
+
+			<!-- Model Cards -->
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+				<!-- Model cards will be inserted here -->
+			</div>
+
+			<!-- Model Ranking -->
+			<div id="model-ranking" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 hidden">
+				<div class="flex items-center space-x-3 mb-6">
+					<div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+						<svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+							<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+						</svg>
+					</div>
+					<h2 class="text-xl font-semibold text-gray-900">Model Ranking</h2>
+				</div>
+				<div id="ranking-list" class="space-y-4">
+					<!-- Ranking items will be inserted here -->
+				</div>
+			</div>
+
+			<!-- Key Insights -->
+			<div id="key-insights" class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6 hidden">
+				<div class="flex items-center space-x-3 mb-4">
+					<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+						<svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+						</svg>
+					</div>
+					<h2 class="text-xl font-semibold text-green-900">Key Insights</h2>
+				</div>
+				<div id="insights-list" class="text-green-800">
+					<!-- Insights will be inserted here -->
+				</div>
+			</div>
+		</div>
+
+		<!-- Loading State -->
+		<div id="loading-state" class="hidden">
+			<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+				<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+					<svg class="w-8 h-8 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+					</svg>
+				</div>
+				<h3 class="text-lg font-semibold text-gray-900 mb-2">Analyzing Your Business Idea</h3>
+				<p class="text-gray-600">Our AI is processing your idea and generating model recommendations...</p>
+			</div>
+		</div>
 	</main>
 
+	<!-- Scripts -->
 	<script type="module" src="./db.js"></script>
 	<script src="./services/aiService.js"></script>
 	<script src="./app.js"></script>
+
+	<script>
+		// Models page functionality
+		class ModelsPage {
+			constructor() {
+				this.currentIdea = null;
+				this.currentModels = [];
+				this.initializeElements();
+				this.setupEventListeners();
+				this.loadIdeas();
+			}
+
+			initializeElements() {
+				this.ideaSelect = document.getElementById('idea-select');
+				this.loadIdeaBtn = document.getElementById('load-idea-btn');
+				this.currentIdeaDisplay = document.getElementById('current-idea-display');
+				this.currentIdeaName = document.getElementById('current-idea-name');
+				this.currentIdeaDetails = document.getElementById('current-idea-details');
+				this.generateModelsBtn = document.getElementById('generate-models-btn');
+				this.generateText = document.getElementById('generate-text');
+				this.generateLoading = document.getElementById('generate-loading');
+				this.statusMessages = document.getElementById('status-messages');
+				this.analysisResults = document.getElementById('analysis-results');
+				this.loadingState = document.getElementById('loading-state');
+				this.aiRecommendation = document.getElementById('ai-recommendation');
+				this.modelRanking = document.getElementById('model-ranking');
+				this.rankingList = document.getElementById('ranking-list');
+				this.keyInsights = document.getElementById('key-insights');
+				this.insightsList = document.getElementById('insights-list');
+				this.refreshIdeasBtn = document.getElementById('refresh-ideas-btn');
+			}
+
+			setupEventListeners() {
+				this.ideaSelect.addEventListener('change', () => this.handleIdeaSelection());
+				this.loadIdeaBtn.addEventListener('click', () => this.loadIdeaData());
+				this.generateModelsBtn.addEventListener('click', () => this.generateModels());
+				this.refreshIdeasBtn.addEventListener('click', () => this.loadIdeas());
+				
+				// Debug button
+				const debugBtn = document.getElementById('debug-ideas-btn');
+				if (debugBtn) {
+					debugBtn.addEventListener('click', () => this.showDebugInfo());
+				}
+			}
+
+			async loadIdeas() {
+				try {
+					this.showStatus('Loading ideas...', 'info');
+					
+					// Wait a bit for Store to be available
+					await new Promise(resolve => setTimeout(resolve, 100));
+					
+					// Try multiple sources for ideas
+					let ideas = [];
+					
+					// Method 1: Try window.Store
+					if (window.Store) {
+						try {
+							const state = window.Store.get();
+							if (state && state.ideas && state.ideas.items) {
+								ideas = state.ideas.items;
+								console.log('Found ideas in Store:', ideas);
+							}
+						} catch (e) {
+							console.log('Store not ready yet:', e.message);
+						}
+					}
+					
+					// Method 2: Try localStorage directly
+					if (ideas.length === 0) {
+						try {
+							const storeData = localStorage.getItem('bp_store_v1');
+							if (storeData) {
+								const parsed = JSON.parse(storeData);
+								if (parsed && parsed.ideas && parsed.ideas.items) {
+									ideas = parsed.ideas.items;
+									console.log('Found ideas in localStorage:', ideas);
+								}
+							}
+						} catch (e) {
+							console.log('Error reading localStorage:', e.message);
+						}
+					}
+					
+					// Method 3: Create test data if no ideas found
+					if (ideas.length === 0) {
+						console.log('No ideas found, creating test data...');
+						ideas = [
+							{ id: 'test-idea-1', name: 'Eco-Friendly Shoes' },
+							{ id: 'test-idea-2', name: 'Cloud Kitchen Business' },
+							{ id: 'test-idea-3', name: 'Tech Consulting Service' }
+						];
+						
+						// Save test data to localStorage
+						const testStore = {
+							profile: { language: 'en', stage: 'Idea' },
+							ideas: {
+								items: ideas,
+								selectedId: null,
+								filter: ''
+							},
+							wizard: {
+								title: 'Eco-Friendly Shoes',
+								description: 'Sustainable footwear made from recycled materials',
+								location: 'Dhaka, Bangladesh',
+								budget: 15000,
+								category: 'Fashion',
+								preferences: { horizon: '6m', risk: 'conservative' },
+								extended: {
+									persona: { age: '25-35', gender: 'all', job: 'urban professionals' },
+									pains: 'High cost of sustainable fashion, limited options',
+									valueProp: 'Affordable, stylish, and environmentally friendly shoes',
+									pricing: { model: 'one_time', price: '$89' }
+								}
+							}
+						};
+						
+						localStorage.setItem('bp_store_v1', JSON.stringify(testStore));
+						this.showStatus('Created test ideas for demonstration', 'info');
+					}
+
+					// Populate dropdown
+					this.ideaSelect.innerHTML = '<option value="">Select an idea to analyze...</option>';
+					ideas.forEach(idea => {
+						const option = document.createElement('option');
+						option.value = idea.id;
+						option.textContent = idea.name || `Idea ${idea.id}`;
+						this.ideaSelect.appendChild(option);
+					});
+
+					this.showStatus(`Found ${ideas.length} ideas`, 'success');
+				} catch (error) {
+					console.error('Error loading ideas:', error);
+					this.showStatus('Error loading ideas', 'error');
+				}
+			}
+
+			handleIdeaSelection() {
+				const selectedId = this.ideaSelect.value;
+				this.loadIdeaBtn.disabled = !selectedId;
+			}
+
+			async loadIdeaData() {
+				const selectedId = this.ideaSelect.value;
+				if (!selectedId) return;
+
+				try {
+					this.loadIdeaBtn.disabled = true;
+					this.loadIdeaBtn.textContent = 'Loading...';
+					this.showStatus('Loading idea data...', 'info');
+
+					// Find the selected idea from the dropdown options
+					const selectedOption = this.ideaSelect.options[this.ideaSelect.selectedIndex];
+					const selectedIdea = {
+						id: selectedId,
+						name: selectedOption.textContent
+					};
+
+					this.currentIdea = selectedIdea;
+
+					// Update display
+					this.currentIdeaName.textContent = selectedIdea.name || `Idea ${selectedId}`;
+					
+					// Try to get wizard data from multiple sources
+					let wizard = {};
+					let state = null;
+					
+					// Method 1: Try window.Store
+					if (window.Store) {
+						try {
+							state = window.Store.get();
+							if (state && state.wizard) {
+								wizard = state.wizard;
+							}
+						} catch (e) {
+							console.log('Store not available:', e.message);
+						}
+					}
+					
+					// Method 2: Try localStorage
+					if (!wizard || Object.keys(wizard).length === 0) {
+						try {
+							const storeData = localStorage.getItem('bp_store_v1');
+							if (storeData) {
+								const parsed = JSON.parse(storeData);
+								if (parsed && parsed.wizard) {
+									wizard = parsed.wizard;
+									state = parsed;
+								}
+							}
+						} catch (e) {
+							console.log('Error reading localStorage:', e.message);
+						}
+					}
+					
+					// Method 3: Use default data for test ideas
+					if (!wizard || Object.keys(wizard).length === 0) {
+						wizard = {
+							title: selectedIdea.name,
+							description: `A business idea for ${selectedIdea.name}`,
+							location: 'Not specified',
+							budget: 10000,
+							category: 'General',
+							preferences: { horizon: '6m', risk: 'medium' },
+							extended: {
+								persona: { age: '25-45', gender: 'all', job: 'general' },
+								pains: 'Market needs and customer pain points',
+								valueProp: 'Value proposition for the business',
+								pricing: { model: 'one_time', price: '$50' }
+							}
+						};
+					}
+					
+					const extended = wizard.extended || {};
+					const persona = extended.persona || {};
+					const pricing = extended.pricing || {};
+
+					const details = [];
+					if (wizard.location) details.push(`Location: ${wizard.location}`);
+					if (wizard.budget) details.push(`Budget: $${wizard.budget.toLocaleString()}`);
+					if (wizard.category) details.push(`Category: ${wizard.category}`);
+					if (persona.age) details.push(`Target: ${persona.age} age group`);
+
+					this.currentIdeaDetails.textContent = details.length > 0 ? details.join(' • ') : 'Basic idea information available';
+
+					// Show current idea display and enable generate button
+					this.currentIdeaDisplay.classList.remove('hidden');
+					this.generateModelsBtn.disabled = false;
+
+					// Update store if available
+					if (window.Store && state) {
+						try {
+							window.Store.set({ 
+								ideas: { 
+									...state.ideas, 
+									selectedId: selectedId 
+								} 
+							});
+						} catch (e) {
+							console.log('Could not update Store:', e.message);
+						}
+					}
+
+					this.showStatus('Idea loaded successfully!', 'success');
+				} catch (error) {
+					console.error('Error loading idea:', error);
+					this.showStatus(`Error: ${error.message}`, 'error');
+				} finally {
+					this.loadIdeaBtn.disabled = false;
+					this.loadIdeaBtn.textContent = 'Load Idea Data';
+				}
+			}
+
+			async generateModels() {
+				if (!this.currentIdea) return;
+
+				try {
+					this.generateModelsBtn.disabled = true;
+					this.generateText.classList.add('hidden');
+					this.generateLoading.classList.remove('hidden');
+					this.loadingState.classList.remove('hidden');
+					this.analysisResults.classList.add('hidden');
+
+					// Get comprehensive idea data
+					const state = window.Store ? window.Store.get() : null;
+					const wizard = state?.wizard || {};
+					const extended = wizard.extended || {};
+					const persona = extended.persona || {};
+					const pricing = extended.pricing || {};
+
+					// Get GPS location
+					const gps = await this.getCurrentLocation();
+
+					// Prepare idea data
+					const ideaData = {
+						title: wizard.title || this.currentIdea.name,
+						description: wizard.description || 'No description provided',
+						location: wizard.location || 'Not specified',
+						budget: wizard.budget || 0,
+						category: wizard.category || 'General',
+						persona: persona,
+						pains: extended.pains || 'Not identified',
+						valueProp: extended.valueProp || 'Not defined',
+						pricing: pricing,
+						preferences: wizard.preferences || {}
+					};
+
+					// Convert to plain text
+					const plainTextData = this.convertIdeaToPlainText(ideaData, gps);
+
+					// Call AI service
+					if (window.AIService && window.AIService.analyzeIdeaWithPlainText) {
+						const result = await window.AIService.analyzeIdeaWithPlainText({
+							ideaId: this.currentIdea.id,
+							ideaName: this.currentIdea.name,
+							plainTextData: plainTextData
+						});
+
+						this.displayAnalysisResults(result);
+					} else {
+						throw new Error('AI service not available');
+					}
+
+				} catch (error) {
+					console.error('Model generation failed:', error);
+					this.showStatus('Model generation failed. Please try again.', 'error');
+				} finally {
+					this.generateModelsBtn.disabled = false;
+					this.generateText.classList.remove('hidden');
+					this.generateLoading.classList.add('hidden');
+					this.loadingState.classList.add('hidden');
+				}
+			}
+
+			convertIdeaToPlainText(ideaData, gps) {
+				let text = `Business Model Analysis Request\n`;
+				text += `Idea Name: ${ideaData.title}\n`;
+				text += `Description: ${ideaData.description}\n`;
+				text += `Location: ${ideaData.location}\n`;
+				text += `Budget: $${ideaData.budget.toLocaleString()}\n`;
+				text += `Category: ${ideaData.category}\n\n`;
+				
+				text += `Target Market:\n`;
+				text += `- Age: ${ideaData.persona.age || 'Not specified'}\n`;
+				text += `- Gender: ${ideaData.persona.gender || 'Not specified'}\n`;
+				text += `- Job: ${ideaData.persona.job || 'Not specified'}\n\n`;
+				
+				text += `Business Context:\n`;
+				text += `- Key Pains: ${ideaData.pains}\n`;
+				text += `- Value Proposition: ${ideaData.valueProp}\n`;
+				text += `- Pricing Model: ${ideaData.pricing.model || 'Not specified'}\n`;
+				text += `- Price: ${ideaData.pricing.price || 'Not specified'}\n\n`;
+				
+				text += `Preferences:\n`;
+				text += `- Risk Level: ${ideaData.preferences.risk || 'Not specified'}\n`;
+				text += `- Time Horizon: ${ideaData.preferences.horizon || 'Not specified'}\n\n`;
+				
+				if (gps) {
+					text += `Location Data:\n`;
+					text += `- GPS: ${gps.lat}, ${gps.lng} (accuracy: ${gps.accuracy}m)\n\n`;
+				}
+				
+				text += `Please analyze this business idea and provide 3 distinct business models with detailed analysis of which model is most suitable. Return JSON format with models array and recommended model.`;
+				
+				return text;
+			}
+
+			async getCurrentLocation() {
+				return new Promise((resolve) => {
+					if (!navigator.geolocation) {
+						resolve(null);
+						return;
+					}
+					navigator.geolocation.getCurrentPosition(
+						pos => resolve({ 
+							lat: pos.coords.latitude, 
+							lng: pos.coords.longitude, 
+							accuracy: pos.coords.accuracy 
+						}),
+						() => resolve(null),
+						{ enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+					);
+				});
+			}
+
+			displayAnalysisResults(result) {
+				console.log('Analysis results:', result);
+
+				// Show analysis results
+				this.analysisResults.classList.remove('hidden');
+
+				// Update AI recommendation
+				const recommendation = result.recommended || 'Analysis completed';
+				const analysis = result.analysis || 'No detailed analysis available';
+				this.aiRecommendation.innerHTML = `
+					<div class="font-semibold mb-2">Recommended: ${recommendation}</div>
+					<div class="text-sm">${analysis}</div>
+				`;
+
+				// Display models
+				this.displayModels(result.models || []);
+
+				// Display ranking if available
+				if (result.ranking && result.ranking.length > 0) {
+					this.displayRanking(result.ranking);
+				}
+
+				// Display insights if available
+				if (result.insights && result.insights.length > 0) {
+					this.displayInsights(result.insights);
+				}
+
+				this.showStatus('Analysis completed successfully!', 'success');
+			}
+
+			displayModels(models) {
+				const modelsContainer = document.querySelector('.grid.grid-cols-1.lg\\:grid-cols-3.gap-6.mb-8');
+				modelsContainer.innerHTML = '';
+
+				models.forEach((model, index) => {
+					const modelCard = this.createModelCard(model, index);
+					modelsContainer.appendChild(modelCard);
+				});
+			}
+
+			createModelCard(model, index) {
+				const card = document.createElement('div');
+				card.className = 'bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow';
+
+				const riskColors = {
+					'Low': 'bg-green-100 text-green-800 border-green-200',
+					'Medium': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+					'High': 'bg-red-100 text-red-800 border-red-200'
+				};
+				const riskColor = riskColors[model.risk] || 'bg-gray-100 text-gray-800 border-gray-200';
+				const scoreColor = model.score >= 80 ? 'text-green-600' : model.score >= 60 ? 'text-yellow-600' : 'text-red-600';
+
+				card.innerHTML = `
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+								${index + 1}
+							</div>
+							<h3 class="text-xl font-semibold text-gray-900">${model.name}</h3>
+						</div>
+						<div class="flex items-center space-x-2">
+							<span class="px-3 py-1 rounded-full text-xs font-medium border ${riskColor}">
+								${model.risk} Risk
+							</span>
+							<div class="text-right">
+								<div class="text-lg font-bold ${scoreColor}">${model.score || 0}/100</div>
+								<div class="text-xs text-gray-500">Score</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="grid grid-cols-3 gap-4 mb-6">
+						<div class="text-center p-3 bg-blue-50 rounded-lg">
+							<div class="text-2xl font-bold text-blue-600">$${Number(model.revenue6m).toLocaleString()}</div>
+							<div class="text-xs text-gray-600">6M Revenue</div>
+						</div>
+						<div class="text-center p-3 bg-purple-50 rounded-lg">
+							<div class="text-2xl font-bold text-purple-600">$${Number(model.cac).toLocaleString()}</div>
+							<div class="text-xs text-gray-600">CAC</div>
+						</div>
+						<div class="text-center p-3 bg-green-50 rounded-lg">
+							<div class="text-2xl font-bold text-green-600">${Math.round(model.margin * 100)}%</div>
+							<div class="text-xs text-gray-600">Margin</div>
+						</div>
+					</div>
+					
+					<div class="mb-4">
+						<h4 class="font-semibold text-gray-900 mb-2">Why this model?</h4>
+						<p class="text-sm text-gray-600">${model.why || 'No explanation provided'}</p>
+					</div>
+					
+					<div class="mb-4">
+						<h4 class="font-semibold text-gray-900 mb-2">Suitable for:</h4>
+						<p class="text-sm text-gray-600">${model.suitableFor || 'General use'}</p>
+					</div>
+					
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+						<div>
+							<h4 class="font-semibold text-green-700 mb-2 flex items-center">
+								<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+								</svg>
+								Strengths
+							</h4>
+							<ul class="text-sm text-gray-600 space-y-1">
+								${(model.strengths || []).map(strength => `<li class="flex items-start"><span class="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>${strength}</li>`).join('')}
+							</ul>
+						</div>
+						<div>
+							<h4 class="font-semibold text-red-700 mb-2 flex items-center">
+								<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+								</svg>
+								Weaknesses
+							</h4>
+							<ul class="text-sm text-gray-600 space-y-1">
+								${(model.weaknesses || []).map(weakness => `<li class="flex items-start"><span class="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>${weakness}</li>`).join('')}
+							</ul>
+						</div>
+					</div>
+					
+					<div class="flex space-x-2">
+						<button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors select-model-btn" data-model-id="${model.id}">
+							Select Model
+						</button>
+						<button class="px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors compare-model-btn" data-model-id="${model.id}">
+							Compare
+						</button>
+					</div>
+				`;
+
+				return card;
+			}
+
+			displayRanking(ranking) {
+				this.modelRanking.classList.remove('hidden');
+				this.rankingList.innerHTML = '';
+
+				ranking.forEach((item, index) => {
+					const rankingItem = document.createElement('div');
+					rankingItem.className = 'flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100';
+					
+					const medalColor = index === 0 ? 'bg-yellow-500' : 
+									  index === 1 ? 'bg-gray-400' : 
+									  index === 2 ? 'bg-orange-600' : 'bg-gray-300';
+
+					rankingItem.innerHTML = `
+						<div class="flex items-center space-x-4">
+							<div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${medalColor}">
+								${index + 1}
+							</div>
+							<div>
+								<h5 class="font-semibold text-gray-900">${item.name}</h5>
+								<p class="text-sm text-gray-600">${item.reason}</p>
+							</div>
+						</div>
+						<div class="text-right">
+							<div class="text-2xl font-bold text-blue-600">${item.score}/100</div>
+							<div class="text-xs text-gray-500">Score</div>
+						</div>
+					`;
+
+					this.rankingList.appendChild(rankingItem);
+				});
+			}
+
+			displayInsights(insights) {
+				this.keyInsights.classList.remove('hidden');
+				this.insightsList.innerHTML = `
+					<ul class="space-y-2">
+						${insights.map(insight => `
+							<li class="flex items-start">
+								<span class="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+								<span>${insight}</span>
+							</li>
+						`).join('')}
+					</ul>
+				`;
+			}
+
+			showStatus(message, type = 'info') {
+				const colors = {
+					info: 'bg-blue-100 text-blue-800 border-blue-200',
+					success: 'bg-green-100 text-green-800 border-green-200',
+					error: 'bg-red-100 text-red-800 border-red-200',
+					warning: 'bg-yellow-100 text-yellow-800 border-yellow-200'
+				};
+
+				this.statusMessages.innerHTML = `
+					<div class="p-3 rounded-lg border ${colors[type]}">
+						${message}
+					</div>
+				`;
+
+				// Auto-hide success messages
+				if (type === 'success') {
+					setTimeout(() => {
+						this.statusMessages.innerHTML = '';
+					}, 3000);
+				}
+			}
+
+			showDebugInfo() {
+				const debugInfo = {
+					hasStore: !!window.Store,
+					storeData: window.Store ? window.Store.get() : null,
+					localStorageData: localStorage.getItem('bp_store_v1'),
+					currentIdea: this.currentIdea,
+					dropdownOptions: Array.from(this.ideaSelect.options).map(opt => ({ value: opt.value, text: opt.textContent })),
+					userAgent: navigator.userAgent,
+					timestamp: new Date().toISOString()
+				};
+
+				const debugHtml = `
+					<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="debug-modal">
+						<div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+							<div class="flex items-center justify-between mb-4">
+								<h3 class="text-xl font-bold text-gray-900">Debug Information</h3>
+								<button class="text-gray-500 hover:text-gray-700" onclick="document.getElementById('debug-modal').remove()">
+									<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+									</svg>
+								</button>
+							</div>
+							
+							<div class="space-y-4">
+								<div class="grid grid-cols-2 gap-4 text-sm">
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<div class="font-bold">Store Status</div>
+										<div>Has Store: ${debugInfo.hasStore ? '✅' : '❌'}</div>
+										<div>Store Data: ${debugInfo.storeData ? '✅' : '❌'}</div>
+									</div>
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<div class="font-bold">LocalStorage</div>
+										<div>Has Data: ${debugInfo.localStorageData ? '✅' : '❌'}</div>
+										<div>Data Length: ${debugInfo.localStorageData ? debugInfo.localStorageData.length : 0} chars</div>
+									</div>
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<div class="font-bold">Current State</div>
+										<div>Current Idea: ${debugInfo.currentIdea ? debugInfo.currentIdea.name : 'None'}</div>
+										<div>Dropdown Options: ${debugInfo.dropdownOptions.length}</div>
+									</div>
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<div class="font-bold">Browser</div>
+										<div>User Agent: ${debugInfo.userAgent.substring(0, 50)}...</div>
+										<div>Timestamp: ${debugInfo.timestamp}</div>
+									</div>
+								</div>
+								
+								<details class="p-3 bg-gray-50 rounded-lg">
+									<summary class="font-bold cursor-pointer">Raw Debug Data</summary>
+									<pre class="mt-2 text-xs overflow-auto max-h-40">${JSON.stringify(debugInfo, null, 2)}</pre>
+								</details>
+								
+								<div class="flex gap-2">
+									<button onclick="document.getElementById('debug-modal').remove()" class="px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors">
+										Close
+									</button>
+									<button onclick="navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2))" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+										Copy Debug Data
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				`;
+
+				// Remove existing modal if any
+				const existingModal = document.getElementById('debug-modal');
+				if (existingModal) {
+					existingModal.remove();
+				}
+
+				// Add new modal
+				document.body.insertAdjacentHTML('beforeend', debugHtml);
+			}
+		}
+
+		// Initialize the page when DOM is loaded
+		document.addEventListener('DOMContentLoaded', () => {
+			new ModelsPage();
+		});
+	</script>
 </body>
 </html>
-
-

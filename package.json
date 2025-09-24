@@ -261,10 +261,15 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "http-server": "^14.1.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13"
   },
   "scripts": {
+    "dev": "python3 -m http.server 3000 --directory .",
+    "dev-cors": "npx http-server . -p 3000 -c-1 --cors",
+    "dev-simple": "node cors-server.js",
+    "start": "npm run dev-simple",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -7,6 +7,12 @@ VENV_DIR="$SERVER_DIR/.venv"
 
 echo "[dev] Starting BizPilot local environment..."
 
+# Check if http-server is available
+if ! command -v npx >/dev/null 2>&1; then
+  echo "[dev] Installing Node.js dependencies..."
+  npm install
+fi
+
 if [ ! -d "$VENV_DIR" ]; then
   echo "[dev] Creating Python venv..."
   python3 -m venv "$VENV_DIR"
@@ -28,8 +34,9 @@ $UVICORN_CMD &
 UVICORN_PID=$!
 
 cd "$ROOT_DIR"
-echo "[dev] Serving static app at http://localhost:5173"
-python3 -m http.server 5173 --directory "$ROOT_DIR"
+echo "[dev] Serving static app with CORS support at http://localhost:3000"
+echo "[dev] This will resolve Firebase Storage CORS issues"
+npx http-server . -p 3000 -c-1 --cors
 
 echo "[dev] Shutting down background services..."
 kill $UVICORN_PID >/dev/null 2>&1 || true

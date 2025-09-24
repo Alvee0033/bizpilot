@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Firebase Storage rules for BizPilot
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow read/write access to user's own files
+    match /users/{userId}/ideas/{ideaId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow read access to public files (if any)
+    match /public/{allPaths=**} {
+      allow read: if true;
+    }
+    
+    // Default deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

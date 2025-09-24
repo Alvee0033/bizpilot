@@ -10,29 +10,478 @@
 </head>
 <body>
 	<script>try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }</script>
+	
 	<div class="container py-6">
-		<h1 class="text-2xl font-extrabold mb-3">Tasks</h1>
-		<ul id="task-list" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-sm text-[color:var(--ink)]"></ul>
+		<!-- Header -->
+		<div class="flex items-center justify-between mb-6">
+			<div>
+				<h1 class="text-3xl font-extrabold text-gray-900">Business Tasks</h1>
+				<p class="text-gray-600 mt-1" id="idea-context">Select an idea to generate personalized tasks</p>
+			</div>
+			<button id="generate-tasks-btn" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+				<span id="generate-tasks-text">Generate AI Tasks</span>
+				<span id="generate-tasks-loading" class="hidden">Generating...</span>
+			</button>
+		</div>
+
+		<!-- Idea Selection -->
+		<div id="idea-selection" class="mb-6 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+			<div class="flex items-center justify-between">
+				<div>
+					<h3 class="font-bold text-gray-900">Selected Idea</h3>
+					<p class="text-sm text-gray-600" id="selected-idea-name">No idea selected</p>
+				</div>
+				<select id="idea-select" class="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+					<option value="">Select an idea...</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Strategy Summary -->
+		<div id="strategy-summary" class="mb-6 p-6 bg-white border border-gray-200 rounded-xl shadow-sm hidden">
+			<div class="flex items-center gap-3 mb-3">
+				<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+					<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+					</svg>
+				</div>
+				<h3 class="font-bold text-gray-900">Growth Strategy</h3>
+			</div>
+			<p id="strategy-text" class="text-gray-700 leading-relaxed"></p>
+		</div>
+
+		<!-- Next Steps -->
+		<div id="next-steps" class="mb-6 p-6 bg-white border border-gray-200 rounded-xl shadow-sm hidden">
+			<div class="flex items-center gap-3 mb-3">
+				<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+					<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+					</svg>
+				</div>
+				<h3 class="font-bold text-gray-900">Immediate Next Steps</h3>
+			</div>
+			<ul id="next-steps-list" class="text-gray-700 space-y-2"></ul>
+		</div>
+
+		<!-- Tasks Grid -->
+		<div id="tasks-container" class="hidden">
+			<div class="flex items-center justify-between mb-6">
+				<h2 class="text-2xl font-bold text-gray-900">Your Business Tasks</h2>
+				<div class="flex items-center gap-4 text-sm text-gray-600">
+					<span id="task-progress" class="font-medium">0/0 completed</span>
+					<div class="w-32 bg-gray-200 rounded-full h-3">
+						<div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="tasks-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+		</div>
+
+		<!-- Fallback Tasks -->
+		<div id="fallback-tasks" class="hidden">
+			<h2 class="text-2xl font-bold text-gray-900 mb-6">General Business Tasks</h2>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+					<div class="flex items-center gap-3 mb-4">
+						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+							<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+							</svg>
+						</div>
+						<h3 class="font-bold text-gray-900">Setup Tasks</h3>
+					</div>
+					<ul class="space-y-3">
+						<li class="flex items-center gap-3">
+							<input type="checkbox" class="task-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" data-task="domain">
+							<span class="text-gray-700">Register domain and social handles</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<input type="checkbox" class="task-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" data-task="brand">
+							<span class="text-gray-700">Create brand kit (logo/colors)</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<input type="checkbox" class="task-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" data-task="payment">
+							<span class="text-gray-700">Set up payment gateway</span>
+						</li>
+					</ul>
+				</div>
+				<div class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+					<div class="flex items-center gap-3 mb-4">
+						<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+							<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+							</svg>
+						</div>
+						<h3 class="font-bold text-gray-900">Marketing Tasks</h3>
+					</div>
+					<ul class="space-y-3">
+						<li class="flex items-center gap-3">
+							<input type="checkbox" class="task-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" data-task="products">
+							<span class="text-gray-700">List first 3 SKUs</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<input type="checkbox" class="task-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" data-task="landing">
+							<span class="text-gray-700">Publish landing page</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<input type="checkbox" class="task-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" data-task="ads">
+							<span class="text-gray-700">Run 2 test ads</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
 	</div>
+
+	<!-- Task Detail Modal -->
+	<div id="task-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+		<div class="flex items-center justify-center min-h-screen p-4">
+			<div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+				<div class="p-8">
+					<div class="flex items-center justify-between mb-6">
+						<h3 id="modal-title" class="text-2xl font-bold text-gray-900"></h3>
+						<button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+							<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+							</svg>
+						</button>
+					</div>
+					<div id="modal-content" class="space-y-6"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="./app.js"></script>
+	<script src="./services/aiService.js"></script>
 	<script>
-	(function(){
-		const taskList = document.getElementById('task-list');
-		if (!taskList) return;
-		const items = ['Register domain and social handles','Create brand kit (logo/colors)','Set up payment gateway','List first 3 SKUs','Publish landing page','Run 2 test ads','Interview 5 target users'];
-		taskList.innerHTML = '';
-		items.forEach((t, idx) => {
+		document.addEventListener('DOMContentLoaded', function() {
+			const ideaSelect = document.getElementById('idea-select');
+			const selectedIdeaName = document.getElementById('selected-idea-name');
+			const ideaContext = document.getElementById('idea-context');
+			const generateTasksBtn = document.getElementById('generate-tasks-btn');
+			const generateTasksText = document.getElementById('generate-tasks-text');
+			const generateTasksLoading = document.getElementById('generate-tasks-loading');
+			const tasksContainer = document.getElementById('tasks-container');
+			const fallbackTasks = document.getElementById('fallback-tasks');
+			const strategySummary = document.getElementById('strategy-summary');
+			const strategyText = document.getElementById('strategy-text');
+			const nextSteps = document.getElementById('next-steps');
+			const nextStepsList = document.getElementById('next-steps-list');
+			const tasksGrid = document.getElementById('tasks-grid');
+			const taskProgress = document.getElementById('task-progress');
+			const progressBar = document.getElementById('progress-bar');
+			const taskModal = document.getElementById('task-modal');
+			const modalTitle = document.getElementById('modal-title');
+			const modalContent = document.getElementById('modal-content');
+			const closeModal = document.getElementById('close-modal');
+
+			let currentTasks = [];
+			let selectedIdeaId = null;
+
+			// Load ideas from Store
+			function loadIdeas() {
+				try {
+					const storeData = JSON.parse(localStorage.getItem('bp_store_v1') || '{}');
+					const ideas = storeData.ideas?.items || [];
+					
+					ideaSelect.innerHTML = '<option value="">Select an idea...</option>';
+					ideas.forEach(idea => {
+						const option = document.createElement('option');
+						option.value = idea.id;
+						option.textContent = idea.name;
+						ideaSelect.appendChild(option);
+					});
+
+					// Select the first idea if available
+					if (ideas.length > 0) {
+						ideaSelect.value = ideas[0].id;
+						selectedIdeaName.textContent = ideas[0].name;
+						selectedIdeaId = ideas[0].id;
+						ideaContext.textContent = `Generate tasks for: ${ideas[0].name}`;
+					}
+				} catch (error) {
+					console.error('Error loading ideas:', error);
+				}
+			}
+
+			// Idea selection handler
+			ideaSelect.addEventListener('change', function() {
+				selectedIdeaId = this.value;
+				const selectedOption = this.options[this.selectedIndex];
+				selectedIdeaName.textContent = selectedOption.textContent;
+				
+				if (selectedIdeaId) {
+					ideaContext.textContent = `Generate tasks for: ${selectedOption.textContent}`;
+					generateTasksBtn.disabled = false;
+				} else {
+					ideaContext.textContent = 'Select an idea to generate personalized tasks';
+					generateTasksBtn.disabled = true;
+				}
+			});
+
+			// Generate tasks button handler
+			generateTasksBtn.addEventListener('click', async function() {
+				if (!selectedIdeaId) return;
+
+				generateTasksBtn.disabled = true;
+				generateTasksText.classList.add('hidden');
+				generateTasksLoading.classList.remove('hidden');
+
+				try {
+					// Get idea data from Store
+					const storeData = JSON.parse(localStorage.getItem('bp_store_v1') || '{}');
+					const wizard = storeData.wizard || {};
+					const extended = wizard.extended || {};
+					const persona = extended.persona || {};
+					const pricing = extended.pricing || {};
+
+					// Prepare idea data
+					const ideaData = {
+						title: wizard.title || selectedIdeaName.textContent,
+						description: wizard.description || 'No description provided',
+						location: wizard.location || 'Not specified',
+						budget: wizard.budget || 0,
+						category: wizard.category || 'General',
+						age: persona.age || 'Not specified',
+						gender: persona.gender || 'Not specified',
+						valueProp: extended.valueProp || 'Not specified',
+						price: pricing.price || 0,
+						pricingModel: pricing.model || 'Not specified'
+					};
+
+					// Get location data (try to get GPS)
+					let locationData = { address: ideaData.location };
+					try {
+						if (navigator.geolocation) {
+							const position = await new Promise((resolve, reject) => {
+								navigator.geolocation.getCurrentPosition(resolve, reject, {
+									enableHighAccuracy: true,
+									timeout: 5000,
+									maximumAge: 60000
+								});
+							});
+							locationData = {
+								address: ideaData.location,
+								lat: position.coords.latitude,
+								lng: position.coords.longitude
+							};
+						}
+					} catch (error) {
+						console.log('Could not get GPS location:', error);
+					}
+
+					console.log('Generating tasks with:', { ideaData, locationData });
+
+					// Call AI service
+					if (window.AIService && window.AIService.generateBusinessTasks) {
+						const result = await window.AIService.generateBusinessTasks({
+							ideaData,
+							locationData,
+							businessModel: ideaData.category
+						});
+
+						displayTasks(result);
+					} else {
+						throw new Error('AI service not available');
+					}
+				} catch (error) {
+					console.error('Task generation failed:', error);
+					showFallbackTasks();
+				} finally {
+					generateTasksBtn.disabled = false;
+					generateTasksText.classList.remove('hidden');
+					generateTasksLoading.classList.add('hidden');
+				}
+			});
+
+			// Display AI-generated tasks
+			function displayTasks(result) {
+				currentTasks = result.tasks || [];
+				
+				// Show strategy summary
+				if (result.summary) {
+					strategyText.textContent = result.summary;
+					strategySummary.classList.remove('hidden');
+				}
+
+				// Show next steps
+				if (result.nextSteps && result.nextSteps.length > 0) {
+					nextStepsList.innerHTML = '';
+					result.nextSteps.forEach(step => {
 			const li = document.createElement('li');
-			const id = 'task-' + idx;
-			li.innerHTML = `<label class="inline-flex items-center gap-2"><input id="${id}" type="checkbox"> <span>${t}</span></label>`;
-			taskList.appendChild(li);
-			const cb = li.querySelector('input');
-			const key = 'bp_task_' + t;
-			try { cb.checked = localStorage.getItem(key)==='1'; } catch {}
-			cb.addEventListener('change',()=>{ try { localStorage.setItem(key, cb.checked?'1':'0'); } catch {} });
+						li.textContent = `• ${step}`;
+						nextStepsList.appendChild(li);
+					});
+					nextSteps.classList.remove('hidden');
+				}
+
+				// Display tasks
+				tasksGrid.innerHTML = '';
+				currentTasks.forEach(task => {
+					const taskCard = createTaskCard(task);
+					tasksGrid.appendChild(taskCard);
+				});
+
+				tasksContainer.classList.remove('hidden');
+				fallbackTasks.classList.add('hidden');
+				updateProgress();
+			}
+
+			// Create task card
+			function createTaskCard(task) {
+				const card = document.createElement('div');
+				card.className = 'p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow';
+				
+				const priorityColor = {
+					'High': 'text-red-700 bg-red-50 border-red-200',
+					'Medium': 'text-yellow-700 bg-yellow-50 border-yellow-200',
+					'Low': 'text-green-700 bg-green-50 border-green-200'
+				}[task.priority] || 'text-gray-700 bg-gray-50 border-gray-200';
+
+				const categoryColor = {
+					'Setup': 'text-blue-700 bg-blue-50 border-blue-200',
+					'Marketing': 'text-purple-700 bg-purple-50 border-purple-200',
+					'Operations': 'text-green-700 bg-green-50 border-green-200',
+					'Finance': 'text-yellow-700 bg-yellow-50 border-yellow-200',
+					'Legal': 'text-red-700 bg-red-50 border-red-200'
+				}[task.category] || 'text-gray-700 bg-gray-50 border-gray-200';
+
+				card.innerHTML = `
+					<div class="flex items-start justify-between mb-4">
+						<div class="flex items-center gap-3 flex-1">
+							<input type="checkbox" class="task-checkbox w-5 h-5 text-blue-600 rounded focus:ring-blue-500" data-task-id="${task.id}">
+							<h3 class="font-bold text-gray-900 leading-tight">${task.title}</h3>
+						</div>
+						<button class="text-gray-400 hover:text-gray-600 task-detail-btn ml-2" data-task-id="${task.id}">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+							</svg>
+						</button>
+					</div>
+					<div class="flex items-center gap-2 mb-3">
+						<span class="px-3 py-1 text-xs font-medium rounded-full border ${categoryColor}">${task.category}</span>
+						<span class="px-3 py-1 text-xs font-medium rounded-full border ${priorityColor}">${task.priority}</span>
+					</div>
+					<p class="text-sm text-gray-600 mb-3 leading-relaxed">${task.description}</p>
+					<div class="flex items-center justify-between text-xs text-gray-500">
+						<span class="font-medium">Timeline: ${task.timeline}</span>
+						<span class="text-gray-400">Click for details</span>
+					</div>
+				`;
+
+				// Add event listeners
+				const checkbox = card.querySelector('.task-checkbox');
+				checkbox.addEventListener('change', function() {
+					saveTaskCompletion(task.id, this.checked);
+					updateProgress();
+				});
+
+				const detailBtn = card.querySelector('.task-detail-btn');
+				detailBtn.addEventListener('click', function() {
+					showTaskDetail(task);
+				});
+
+				// Load saved completion state
+				const savedState = localStorage.getItem(`task_${task.id}`);
+				if (savedState === 'completed') {
+					checkbox.checked = true;
+				}
+
+				return card;
+			}
+
+			// Show task detail modal
+			function showTaskDetail(task) {
+				modalTitle.textContent = task.title;
+				modalContent.innerHTML = `
+					<div class="space-y-6">
+						<div>
+							<h4 class="font-bold text-gray-900 mb-3">Description</h4>
+							<p class="text-gray-700 leading-relaxed">${task.description}</p>
+						</div>
+						<div class="grid grid-cols-2 gap-6">
+							<div>
+								<h4 class="font-bold text-gray-900 mb-2">Category</h4>
+								<span class="px-3 py-1 text-sm rounded-full bg-blue-50 text-blue-700 border border-blue-200">${task.category}</span>
+							</div>
+							<div>
+								<h4 class="font-bold text-gray-900 mb-2">Priority</h4>
+								<span class="px-3 py-1 text-sm rounded-full border ${task.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200' : task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 'bg-green-50 text-green-700 border-green-200'}">${task.priority}</span>
+							</div>
+							<div>
+								<h4 class="font-bold text-gray-900 mb-2">Timeline</h4>
+								<p class="text-gray-700">${task.timeline}</p>
+							</div>
+							<div>
+								<h4 class="font-bold text-gray-900 mb-2">Success Metrics</h4>
+								<p class="text-gray-700">${task.successMetrics}</p>
+							</div>
+						</div>
+						<div>
+							<h4 class="font-bold text-gray-900 mb-3">Resources Needed</h4>
+							<ul class="list-disc list-inside text-gray-700 space-y-1">
+								${task.resources.map(resource => `<li>${resource}</li>`).join('')}
+							</ul>
+						</div>
+					</div>
+				`;
+				taskModal.classList.remove('hidden');
+			}
+
+			// Close modal
+			closeModal.addEventListener('click', function() {
+				taskModal.classList.add('hidden');
+			});
+
+			// Close modal on background click
+			taskModal.addEventListener('click', function(e) {
+				if (e.target === taskModal) {
+					taskModal.classList.add('hidden');
+				}
+			});
+
+			// Save task completion
+			function saveTaskCompletion(taskId, completed) {
+				localStorage.setItem(`task_${taskId}`, completed ? 'completed' : 'pending');
+			}
+
+			// Update progress
+			function updateProgress() {
+				const checkboxes = document.querySelectorAll('.task-checkbox');
+				const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+				const total = checkboxes.length;
+				
+				taskProgress.textContent = `${completed}/${total} completed`;
+				progressBar.style.width = total > 0 ? `${(completed / total) * 100}%` : '0%';
+			}
+
+			// Show fallback tasks
+			function showFallbackTasks() {
+				tasksContainer.classList.add('hidden');
+				fallbackTasks.classList.remove('hidden');
+				
+				// Add event listeners to fallback tasks
+				const fallbackCheckboxes = document.querySelectorAll('#fallback-tasks .task-checkbox');
+				fallbackCheckboxes.forEach(checkbox => {
+					const taskId = checkbox.dataset.task;
+					const savedState = localStorage.getItem(`fallback_task_${taskId}`);
+					if (savedState === 'completed') {
+						checkbox.checked = true;
+					}
+					
+					checkbox.addEventListener('change', function() {
+						localStorage.setItem(`fallback_task_${taskId}`, this.checked ? 'completed' : 'pending');
+					});
+				});
+			}
+
+			// Initialize
+			loadIdeas();
+			generateTasksBtn.disabled = true;
 		});
-	})();
 	</script>
 </body>
 </html>
-
-

@@ -1,9 +1,8 @@
-// Firebase client bridge (ES module) for Firestore/Storage reads/writes
+// Firebase client bridge (ES module) for Firestore reads/writes
 // Uses the user's provided Firebase project (blzpilot)
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, serverTimestamp, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { getStorage, ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCpyk5H3coipz0HBJzuCXsBhwYPCcj2Asc',
@@ -15,14 +14,13 @@ const firebaseConfig = {
   measurementId: 'G-YBJGYKE3N5'
 };
 
-let app = null; let db = null; let storage = null;
+let app = null; let db = null;
 export function init() {
   if (!app) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
-    storage = getStorage(app);
   }
-  return { db, storage };
+  return { db };
 }
 
 export async function loadUserData(uid) {
@@ -85,51 +83,28 @@ export async function writeIdeaChat(uid, ideaId, history){
   await setDoc(ref, { chat: Array.isArray(history) ? history : [], chatUpdatedAt: serverTimestamp() }, { merge: true });
 }
 
-async function uploadDataUrl(uid, ideaId, fileName, dataUrl, folder) {
-  init();
-  const safeName = String(fileName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `users/${uid}/ideas/${ideaId}/${folder}/${Date.now()}_${safeName}`;
-  const r = storageRef(storage, path);
-  await uploadString(r, String(dataUrl), 'data_url');
-  const url = await getDownloadURL(r);
-  return { url, path };
-}
+// NOTE: Storage uploads removed per request. We store inline data URLs in Firestore instead.
 
 export async function saveIdeaAssetsFromWizard(uid, ideaId, wizard, gps) {
   init();
   const ideaDoc = doc(db, 'users', uid, 'ideas', ideaId);
   const images = (wizard && wizard.images) || [];
   const pdf = (wizard && wizard.pdf) || null;
-  const uploads = [];
+  // Persist inline data directly into Firestore to avoid Storage/CORS
   const photos = [];
   for (const img of images) {
-    if (img && img.data) {
-      uploads.push(
-        uploadDataUrl(uid, ideaId, img.name || 'image', img.data, 'photos')
-          .then(({ url, path }) => { photos.push({ name: img.name || 'image', url, path }); })
-          .catch(() => {})
-      );
+    if (img && (img.data || img.url)) {
+      // Prefer data URL; fall back to existing URL if present
+      photos.push({ name: img.name || 'image', data: String(img.data || ''), url: img.url ? String(img.url) : undefined });
     }
   }
-  let pdfInfo = null;
-  if (pdf && pdf.data) {
-    uploads.push(
-      uploadDataUrl(uid, ideaId, pdf.name || 'document.pdf', pdf.data, 'docs')
-        .then(({ url, path }) => { pdfInfo = { name: pdf.name || 'document.pdf', url, path }; })
-        .catch(() => {})
-    );
-  }
-  await Promise.all(uploads);
-  const payload = {
-    photos: photos,
-    pdf: pdfInfo || null,
-    gps: gps || null,
-    updatedAt: serverTimestamp()
-  };
+  const pdfInfo = (pdf && (pdf.data || pdf.url)) ? { name: pdf.name || 'document.pdf', data: pdf.data ? String(pdf.data) : undefined, url: pdf.url ? String(pdf.url) : undefined } : null;
+  const payload = { photos, pdf: pdfInfo, gps: gps || null, updatedAt: serverTimestamp() };
   await setDoc(ideaDoc, payload, { merge: true });
   return payload;
 }
 
 window.DB = { init, loadUserData, writeProfile, writeWizard, writeIdeas, deleteIdea, readIdea, saveIdeaAssetsFromWizard, writeIdeaChat };
+
 
 
