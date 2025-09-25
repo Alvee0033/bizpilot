@@ -13,15 +13,34 @@
 	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="./styles.css">
 	<link rel="icon" href="./assets/logo.png">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<style>
+		/* Golden ratio design system (phi ≈ 1.618) */
+		:root {
+			--phi: 1.618;
+			--step--2: calc(1rem / (var(--phi) * var(--phi)));
+			--step--1: calc(1rem / var(--phi));
+			--step-0: 1rem;
+			--step-1: calc(1rem * var(--phi));
+			--step-2: calc(1rem * var(--phi) * var(--phi));
+			--step-3: calc(1rem * var(--phi) * var(--phi) * var(--phi));
+			--radius: 12px;
+			--radius-lg: 16px;
+			--ring: 2px;
+		}
+
+		/* Page rhythm */
+		body { line-height: 1.45; }
+		.container { gap: var(--step-1); }
+
 		.slider-container {
 			position: relative;
-			margin: 10px 0;
+			margin: var(--step--1) 0 var(--step-0);
 		}
 		.slider {
 			width: 100%;
 			height: 6px;
-			border-radius: 3px;
+			border-radius: 999px;
 			background: var(--muted);
 			outline: none;
 			-webkit-appearance: none;
@@ -29,70 +48,71 @@
 		.slider::-webkit-slider-thumb {
 			-webkit-appearance: none;
 			appearance: none;
-			width: 20px;
-			height: 20px;
+			width: 18px;
+			height: 18px;
 			border-radius: 50%;
 			background: var(--primary);
 			cursor: pointer;
-			box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+			box-shadow: 0 2px 6px rgba(0,0,0,0.18);
 		}
 		.slider::-moz-range-thumb {
-			width: 20px;
-			height: 20px;
+			width: 18px;
+			height: 18px;
 			border-radius: 50%;
 			background: var(--primary);
 			cursor: pointer;
 			border: none;
-			box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+			box-shadow: 0 2px 6px rgba(0,0,0,0.18);
 		}
 		.slider-value {
 			position: absolute;
-			top: -30px;
+			top: -28px;
 			right: 0;
 			background: var(--ink);
 			color: white;
-			padding: 4px 8px;
-			border-radius: 4px;
-			font-size: 12px;
+			padding: 2px 8px;
+			border-radius: 6px;
+			font-size: 11px;
 			font-weight: bold;
 		}
 		.simulation-card {
-			background: var(--card);
+			background: linear-gradient(180deg, #fff 0%, #fffaf1 100%);
 			border: 1px solid var(--muted);
-			border-radius: 12px;
-			padding: 20px;
-			margin: 16px 0;
-			box-shadow: var(--shadow);
+			border-radius: var(--radius-lg);
+			padding: calc(var(--step-0) * 1.25);
+			margin: var(--step-0) 0;
+			box-shadow: 0 12px 24px rgba(0,0,0,0.06);
 		}
 		.metric-grid {
 			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-			gap: 16px;
-			margin: 16px 0;
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+			gap: var(--step-0);
+			margin: var(--step-0) 0;
 		}
 		.metric-card {
-			background: var(--primary-lightest);
+			background: linear-gradient(180deg, var(--primaryLightest) 0%, #fff 100%);
 			border: 1px solid var(--primary);
-			border-radius: 8px;
-			padding: 12px;
+			border-radius: 10px;
+			padding: calc(var(--step--1) + 6px);
 			text-align: center;
 		}
 		.metric-value {
-			font-size: 24px;
-			font-weight: bold;
+			font-size: calc(1rem * var(--phi));
+			font-weight: 900;
+			letter-spacing: -0.02em;
 			color: var(--ink);
 		}
 		.metric-label {
 			font-size: 12px;
 			color: var(--ink-60);
-			margin-top: 4px;
+			margin-top: 6px;
 		}
 		.chart-container {
-			height: 300px;
-			background: var(--primary-lightest);
+			height: 320px;
+			background: linear-gradient(180deg, var(--primaryLightest) 0%, #fff 100%);
 			border: 1px solid var(--primary);
-			border-radius: 8px;
-			margin: 16px 0;
+			border-radius: var(--radius);
+			margin: var(--step-0) 0;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -101,7 +121,7 @@
 		.loading {
 			display: none;
 			text-align: center;
-			padding: 40px;
+			padding: var(--step-1);
 		}
 		.loading.active {
 			display: block;
@@ -113,21 +133,39 @@
 			width: 40px;
 			height: 40px;
 			animation: spin 1s linear infinite;
-			margin: 0 auto 16px;
+			margin: 0 auto var(--step--1);
 		}
 		@keyframes spin {
 			0% { transform: rotate(0deg); }
 			100% { transform: rotate(360deg); }
 		}
+		/* Floating sliders panel */
+		.floating-controls {
+			position: fixed;
+			right: 16px;
+			bottom: 16px;
+			z-index: 50;
+			background: #ffffff;
+			border: 1px solid var(--muted);
+			border-radius: var(--radius-lg);
+			box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+			width: 340px;
+			max-width: calc(100vw - 32px);
+		}
+		.floating-header { display:flex; align-items:center; justify-content:space-between; padding: 10px 12px; border-bottom:1px solid var(--muted); }
+		.floating-body { padding: 12px 12px; max-height: 56vh; overflow:auto; }
+		.floating-title { font-weight: 900; font-size: 14px; letter-spacing: -0.01em; color: var(--ink); }
+		.floating-close { background: transparent; border: 1px solid var(--muted); padding: 4px 8px; border-radius: 8px; font-size: 12px; }
 		.insight-card {
-			background: linear-gradient(135deg, var(--primary-lightest) 0%, #fff 100%);
+			background: linear-gradient(135deg, var(--primaryLightest) 0%, #fff 100%);
 			border: 1px solid var(--primary);
-			border-radius: 8px;
-			padding: 16px;
-			margin: 12px 0;
+			border-radius: 10px;
+			padding: var(--step-0);
+			margin: var(--step--1) 0 var(--step-0);
 		}
 		.insight-title {
-			font-weight: bold;
+			font-weight: 900;
+			letter-spacing: -0.01em;
 			color: var(--ink);
 			margin-bottom: 8px;
 		}
@@ -172,18 +210,23 @@
 	</header>
 
 	<main>
-		<div class="container py-6">
-			<div class="flex items-center justify-between mb-6">
-				<div>
-					<h1 class="text-3xl font-extrabold text-[color:var(--ink)]">Advanced Business Simulations</h1>
-					<p class="text-[color:var(--ink-60)] mt-2">Monte Carlo analysis, scenario planning, and real-time optimization</p>
-				</div>
-				<button id="new-simulation-btn" class="btn btn-primary">New Simulation</button>
-			</div>
+		<div class="container py-6" style="max-width: 1200px;">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-[color:var(--ink)]">Simulations & Predictions</h1>
+                    <p class="text-[color:var(--ink-60)] mt-1">Analyze an idea with AI and run scenarios</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select id="idea-select-top" class="px-3 py-2 border border-[color:var(--muted)] rounded-lg text-sm">
+                        <option value="">Select idea...</option>
+                    </select>
+                    <button id="analyze-ai" class="px-4 py-2 bg-[color:var(--ink)] text-white rounded-lg font-bold">Analyze</button>
+                </div>
+            </div>
 
 			<!-- Input Form Section -->
 			<div id="input-section" class="simulation-card">
-				<h2 class="text-xl font-bold mb-4">Business Model Input</h2>
+				<h2 class="text-xl font-extrabold tracking-tight mb-4">Business Model Input</h2>
 				
 				<!-- Idea Selection Toggle -->
 				<div class="mb-6 p-4 bg-gradient-to-r from-[color:var(--primaryLightest)] to-white border border-[color:var(--primary)] rounded-xl">
@@ -363,9 +406,9 @@
 					</div>
 				</div>
 				
-				<div class="flex justify-end mt-6">
-					<button id="run-simulation-btn" class="btn btn-primary btn-lg">Run Advanced Simulation</button>
-				</div>
+                <div class="flex justify-end mt-3">
+                    <button id="run-simulation-btn" class="btn btn-primary">Run Simulation</button>
+                </div>
 			</div>
 
 			<!-- Loading State -->
@@ -377,50 +420,53 @@
 
 			<!-- Results Section -->
 			<div id="results-section" style="display: none;">
-				<!-- Interactive Sliders -->
-				<div class="simulation-card">
-					<h2 class="text-xl font-bold mb-4">Interactive Variables</h2>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-						<div class="slider-container">
-							<label class="block font-bold mb-2">Pricing ($)</label>
-							<div class="slider-value" id="price-value">$25</div>
-							<input type="range" id="price-slider" class="slider" min="12.5" max="50" step="2.5" value="25">
-						</div>
-						<div class="slider-container">
-							<label class="block font-bold mb-2">Marketing Budget (%)</label>
-							<div class="slider-value" id="marketing-value">15%</div>
-							<input type="range" id="marketing-slider" class="slider" min="5" max="40" step="5" value="15">
-						</div>
-						<div class="slider-container">
-							<label class="block font-bold mb-2">Market Size (%)</label>
-							<div class="slider-value" id="market-value">50%</div>
-							<input type="range" id="market-slider" class="slider" min="10" max="100" step="10" value="50">
-						</div>
-						<div class="slider-container">
-							<label class="block font-bold mb-2">Timeline (months)</label>
-							<div class="slider-value" id="timeline-value">12</div>
-							<input type="range" id="timeline-slider" class="slider" min="6" max="36" step="6" value="12">
-						</div>
-					</div>
+			<!-- Real-time Insights -->
+			<div id="insights-section" class="simulation-card">
+				<h2 class="text-xl font-bold mb-4">Real-time Insights</h2>
+				<div id="insights-container">
+					<!-- Dynamic insights will be populated here -->
 				</div>
+			</div>
 
-				<!-- Real-time Insights -->
-				<div id="insights-section" class="simulation-card">
-					<h2 class="text-xl font-bold mb-4">Real-time Insights</h2>
-					<div id="insights-container">
-						<!-- Dynamic insights will be populated here -->
+			<!-- Floating Sliders Panel -->
+			<div id="floating-controls" class="floating-controls" aria-live="polite">
+				<div class="floating-header">
+					<div class="floating-title">Interactive Variables</div>
+					<button id="floating-close" class="floating-close">Hide</button>
+				</div>
+				<div class="floating-body">
+					<div class="slider-container">
+						<label class="block font-bold mb-2">Pricing ($)</label>
+						<div class="slider-value" id="price-value">$25</div>
+						<input type="range" id="price-slider" class="slider" min="12.5" max="50" step="2.5" value="25">
+					</div>
+					<div class="slider-container">
+						<label class="block font-bold mb-2">Marketing Budget (%)</label>
+						<div class="slider-value" id="marketing-value">15%</div>
+						<input type="range" id="marketing-slider" class="slider" min="5" max="40" step="5" value="15">
+					</div>
+					<div class="slider-container">
+						<label class="block font-bold mb-2">Market Size (%)</label>
+						<div class="slider-value" id="market-value">50%</div>
+						<input type="range" id="market-slider" class="slider" min="10" max="100" step="10" value="50">
+					</div>
+					<div class="slider-container">
+						<label class="block font-bold mb-2">Timeline (months)</label>
+						<div class="slider-value" id="timeline-value">12</div>
+						<input type="range" id="timeline-slider" class="slider" min="6" max="36" step="6" value="12">
 					</div>
 				</div>
+			</div>
 
 				<!-- Business Models -->
-				<div id="models-section">
+                <div id="models-section" class="grid grid-cols-1 md:grid-cols-3 gap-4">
 					<!-- Lean Model -->
 					<div class="simulation-card">
 						<div class="flex items-center justify-between mb-4">
 							<h2 class="text-xl font-bold text-green-600">LEAN MODEL</h2>
 							<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-bold">Conservative Growth</span>
 						</div>
-						<div class="metric-grid">
+                        <div class="metric-grid">
 							<div class="metric-card">
 								<div class="metric-value" id="lean-revenue">$0</div>
 								<div class="metric-label">Monthly Revenue</div>
@@ -437,10 +483,16 @@
 								<div class="metric-value" id="lean-breakeven">0</div>
 								<div class="metric-label">Break-even (months)</div>
 							</div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="lean-cac">$0</div>
+                                <div class="metric-label">CAC</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="lean-margin">0%</div>
+                                <div class="metric-label">Gross Margin</div>
+                            </div>
 						</div>
-						<div class="chart-container">
-							<div>Revenue Growth Chart (Lean Model)</div>
-						</div>
+                        <div class="chart-container"><canvas id="chart-lean" height="140"></canvas></div>
 					</div>
 
 					<!-- Balanced Model -->
@@ -449,7 +501,7 @@
 							<h2 class="text-xl font-bold text-blue-600">BALANCED MODEL</h2>
 							<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-bold">Moderate Growth</span>
 						</div>
-						<div class="metric-grid">
+                        <div class="metric-grid">
 							<div class="metric-card">
 								<div class="metric-value" id="balanced-revenue">$0</div>
 								<div class="metric-label">Monthly Revenue</div>
@@ -466,10 +518,16 @@
 								<div class="metric-value" id="balanced-breakeven">0</div>
 								<div class="metric-label">Break-even (months)</div>
 							</div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="balanced-cac">$0</div>
+                                <div class="metric-label">CAC</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="balanced-margin">0%</div>
+                                <div class="metric-label">Gross Margin</div>
+                            </div>
 						</div>
-						<div class="chart-container">
-							<div>Revenue Growth Chart (Balanced Model)</div>
-						</div>
+                        <div class="chart-container"><canvas id="chart-balanced" height="140"></canvas></div>
 					</div>
 
 					<!-- Aggressive Model -->
@@ -478,7 +536,7 @@
 							<h2 class="text-xl font-bold text-red-600">AGGRESSIVE MODEL</h2>
 							<span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-bold">High Growth</span>
 						</div>
-						<div class="metric-grid">
+                        <div class="metric-grid">
 							<div class="metric-card">
 								<div class="metric-value" id="aggressive-revenue">$0</div>
 								<div class="metric-label">Monthly Revenue</div>
@@ -495,10 +553,16 @@
 								<div class="metric-value" id="aggressive-breakeven">0</div>
 								<div class="metric-label">Break-even (months)</div>
 							</div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="aggressive-cac">$0</div>
+                                <div class="metric-label">CAC</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="aggressive-margin">0%</div>
+                                <div class="metric-label">Gross Margin</div>
+                            </div>
 						</div>
-						<div class="chart-container">
-							<div>Revenue Growth Chart (Aggressive Model)</div>
-						</div>
+                        <div class="chart-container"><canvas id="chart-aggressive" height="140"></canvas></div>
 					</div>
 				</div>
 			</div>
@@ -515,10 +579,12 @@
 			timeline: 12
 		};
 
-		// Initialize the page
+        // Initialize the page
 		document.addEventListener('DOMContentLoaded', function() {
 			initializeSliders();
 			initializeForm();
+			initializeFloatingControls();
+            loadIdeasTop();
 		});
 
 		function initializeSliders() {
@@ -551,10 +617,75 @@
 			});
 		}
 
+		function initializeFloatingControls(){
+			const closeBtn = document.getElementById('floating-close');
+			const panel = document.getElementById('floating-controls');
+			if (closeBtn && panel) {
+				closeBtn.addEventListener('click', () => {
+					if (panel.style.display === 'none') { panel.style.display = ''; closeBtn.textContent = 'Hide'; }
+					else { panel.style.display = 'none'; closeBtn.textContent = 'Show'; }
+				});
+			}
+		}
+
 		function initializeForm() {
 			document.getElementById('run-simulation-btn').addEventListener('click', function() {
 				runSimulation();
 			});
+            const analyzeBtn = document.getElementById('analyze-ai');
+            if (analyzeBtn) {
+                analyzeBtn.addEventListener('click', async function(){
+                    await analyzeWithAI();
+                });
+            }
+		}
+
+		async function loadIdeasTop(){
+			try {
+				const sel = document.getElementById('idea-select-top'); if (!sel) return;
+				const storeData = localStorage.getItem('bp_store_v1');
+				if (!storeData) return; const store = JSON.parse(storeData);
+				const ideas = store.ideas?.items || [];
+				sel.innerHTML = '<option value="">Select idea...</option>' + ideas.map(i=>`<option value="${i.id}">${i.name||'Idea'}</option>`).join('');
+			} catch {}
+		}
+
+		async function analyzeWithAI(){
+			const sel = document.getElementById('idea-select-top');
+			const ideaId = sel && sel.value;
+			let ideaName = 'Idea';
+			let wizard = {};
+			try { const store = JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); wizard = store.wizard||{}; const it = (store.ideas?.items||[]).find(i=>i.id===ideaId); if (it) ideaName = it.name; } catch {}
+			// merge persisted assets
+			try { const user = window.Store && window.Store.get && window.Store.get().profile && window.Store.get().profile.user; if (user && user.uid && window.DB && window.DB.readIdea && ideaId) { const saved = await window.DB.readIdea(user.uid, ideaId).catch(()=>null); if (saved) { if (Array.isArray(saved.photos) && saved.photos.length) wizard.images = saved.photos.map(p=>({ name:p.name||'photo', data:String(p.data||p.url||'') })); if (saved.pdf && (saved.pdf.data||saved.pdf.url)) wizard.pdf = { name: saved.pdf.name||'document.pdf', data: String(saved.pdf.data||saved.pdf.url) }; wizard._savedGps = saved.gps||null; } } } catch {}
+			const gps = (wizard && wizard._savedGps) || await new Promise(res => { if (!navigator.geolocation) { res(null); return; } navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy}), ()=>res(null), { enableHighAccuracy:true, timeout:4000, maximumAge:60000 }); });
+			try {
+				const ai = await window.AIService.analyzeSimulateIdea({ ideaName, wizard, gps, extraText: '' });
+				// Fill form defaults from wizard if empty
+				if (!document.getElementById('title').value) document.getElementById('title').value = ideaName;
+				if (!document.getElementById('description').value && wizard.description) document.getElementById('description').value = wizard.description;
+				if (!document.getElementById('location').value && wizard.location) document.getElementById('location').value = wizard.location;
+				if (!document.getElementById('budget').value && typeof wizard.budget==='number') document.getElementById('budget').value = wizard.budget;
+				if (!document.getElementById('category').value && wizard.category) document.getElementById('category').value = wizard.category;
+				// Build simulationData directly from AI
+				simulationData = {
+					formData: { price: Number(document.getElementById('price').value||25), budget: Number(document.getElementById('budget').value||0) },
+					models: {
+						lean: { monthlyRevenue: ai.series.revenue[0]||0, monthlyProfit: ai.series.profit[0]||0, customers: ai.series.customers[0]||0, breakeven: ai.breakevenMonths||0, growthRate: 0.6 },
+						balanced: { monthlyRevenue: Math.round((ai.series.revenue[0]||0)*1.1), monthlyProfit: Math.round((ai.series.profit[0]||0)*1.1), customers: Math.round((ai.series.customers[0]||0)*1.05), breakeven: ai.breakevenMonths||0, growthRate: 1.0 },
+						aggressive: { monthlyRevenue: Math.round((ai.series.revenue[0]||0)*1.3), monthlyProfit: Math.round((ai.series.profit[0]||0)*1.3), customers: Math.round((ai.series.customers[0]||0)*1.1), breakeven: Math.max(1, Math.round((ai.breakevenMonths||1)*0.8)), growthRate: 1.4 }
+					},
+					insights: [
+						{ title: 'AI Summary', text: ai.summary||'' },
+						{ title: 'Assumptions', text: (ai.assumptions||[]).join('; ') }
+					]
+				};
+				displayResults();
+				// Overwrite charts with AI series
+				const months = ai.series.months||[]; const rev = ai.series.revenue||[]; const prof = ai.series.profit||[];
+				const cfg = (r,p)=>({ labels: months, datasets:[ { label:'Revenue', data:r, borderColor:'#171208', backgroundColor:'rgba(23,18,8,0.08)', tension:.3 }, { label:'Profit', data:p, borderColor:'#D01B22', backgroundColor:'rgba(208,27,34,0.08)', tension:.3 } ]});
+				['chart-lean','chart-balanced','chart-aggressive'].forEach((id,idx)=>{ if (charts[id]) { charts[id].data = cfg(rev, prof); charts[id].update('active'); }});
+			} catch (e) { alert('AI analysis failed. Try again.'); }
 		}
 
 		function runSimulation() {
@@ -689,9 +820,34 @@
 			// Display insights
 			displayInsights(simulationData.insights);
 
+			// Render charts
+			renderCharts(simulationData);
+
 			// Show results section
 			document.getElementById('results-section').style.display = 'block';
 			document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+		}
+
+		let charts = { 'chart-lean': null, 'chart-balanced': null, 'chart-aggressive': null };
+		function renderCharts(data){
+			const months = Array.from({ length: 12 }, (_, i) => `M${i+1}`);
+			const datasets = (model) => ({
+				labels: months,
+				datasets: [
+					{ label: 'Revenue', data: months.map((_,i)=> Math.round(model.monthlyRevenue * (1 + model.growthRate*0.08*i))), borderColor: '#171208', backgroundColor: 'rgba(23,18,8,0.08)', tension: .3 },
+					{ label: 'Profit', data: months.map((_,i)=> Math.round(model.monthlyProfit * (1 + model.growthRate*0.06*i))), borderColor: '#D01B22', backgroundColor: 'rgba(208,27,34,0.08)', tension: .3 }
+				]
+			});
+			function ensureChart(id, cfg){
+				const ctx = document.getElementById(id);
+				if (!ctx || !window.Chart) return null;
+				if (charts[id]) { charts[id].data = cfg; charts[id].update('active'); return charts[id]; }
+				charts[id] = new Chart(ctx.getContext('2d'), { type: 'line', data: cfg, options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } } });
+				return charts[id];
+			}
+			ensureChart('chart-lean', datasets(data.models.lean));
+			ensureChart('chart-balanced', datasets(data.models.balanced));
+			ensureChart('chart-aggressive', datasets(data.models.aggressive));
 		}
 
 		function updateModelMetrics(modelType, modelData) {
@@ -699,6 +855,11 @@
 			document.getElementById(`${modelType}-profit`).textContent = `$${modelData.monthlyProfit.toLocaleString()}`;
 			document.getElementById(`${modelType}-customers`).textContent = modelData.customers.toLocaleString();
 			document.getElementById(`${modelType}-breakeven`).textContent = modelData.breakeven;
+			// Derived metrics
+			const cac = Math.max(1, Math.round((simulationData.formData.budget * 0.1) / Math.max(1, modelData.customers)));
+			document.getElementById(`${modelType}-cac`).textContent = `$${cac.toLocaleString()}`;
+			const margin = Math.max(0, Math.min(1, modelData.monthlyProfit / Math.max(1, modelData.monthlyRevenue)));
+			document.getElementById(`${modelType}-margin`).textContent = `${Math.round(margin * 100)}%`;
 		}
 
 		function displayInsights(insights) {
@@ -765,14 +926,30 @@
 			// Update each model
 			['lean', 'balanced', 'aggressive'].forEach(modelType => {
 				const originalModel = simulationData.models[modelType];
+				// Apply a simple price elasticity: demand ~ 1/priceMultiplier
+				const demandAdj = 1 / Math.max(0.5, Math.min(2, priceMultiplier));
+				const revenueAdj = marketMultiplier * demandAdj;
+				const profitAdj = revenueAdj * Math.max(0.6, marketingMultiplier * 0.9);
 				const updatedModel = {
-					monthlyRevenue: Math.round(originalModel.monthlyRevenue * priceMultiplier * marketMultiplier),
-					monthlyProfit: Math.round(originalModel.monthlyProfit * priceMultiplier * marketMultiplier),
-					customers: Math.floor(originalModel.customers * marketMultiplier / priceMultiplier),
+					monthlyRevenue: Math.round(originalModel.monthlyRevenue * revenueAdj),
+					monthlyProfit: Math.round(originalModel.monthlyProfit * profitAdj),
+					customers: Math.max(1, Math.floor(originalModel.customers * revenueAdj / priceMultiplier)),
 					breakeven: Math.ceil(originalModel.breakeven / marketingMultiplier / timelineMultiplier)
 				};
 
 				updateModelMetrics(modelType, updatedModel);
+				// Update charts as well
+				const months = Array.from({ length: 12 }, (_, i) => `M${i+1}`);
+				const cfg = {
+					labels: months,
+					datasets: [
+						{ label: 'Revenue', data: months.map((_,i)=> Math.round(updatedModel.monthlyRevenue * (1 + (originalModel.growthRate||0.8)*0.08*i))), borderColor: '#171208', backgroundColor: 'rgba(23,18,8,0.08)', tension: .3 },
+						{ label: 'Profit', data: months.map((_,i)=> Math.round(updatedModel.monthlyProfit * (1 + (originalModel.growthRate||0.8)*0.06*i))), borderColor: '#D01B22', backgroundColor: 'rgba(208,27,34,0.08)', tension: .3 }
+					]
+				};
+				const idMap = { lean: 'chart-lean', balanced: 'chart-balanced', aggressive: 'chart-aggressive' };
+				const id = idMap[modelType];
+				if (charts[id]) { charts[id].data = cfg; charts[id].update('active'); }
 			});
 		}
 
